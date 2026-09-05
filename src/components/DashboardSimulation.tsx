@@ -22,6 +22,8 @@ import ProfileTab from './dashboard/ProfileTab';
 import OverflowSettingsMenu from './dashboard/OverflowSettingsMenu';
 import ScreenshotGalleryModal from './ScreenshotGalleryModal';
 import { downloadHabitPlanPDF } from '../utils/pdfExport';
+import { useHabit } from '../context/HabitContext';
+import { formatDrivingStreak } from '../utils/units';
 
 interface DashboardSimulationProps {
   goal: Goal;
@@ -48,6 +50,7 @@ export default function DashboardSimulation({
   theme = 'light',
   onToggleTheme
 }: DashboardSimulationProps) {
+  const { unitSystem, isUS } = useHabit();
   // Store the active focusing goal. It defaults to the onboarding selected habit.
   const [activeGoal, setActiveGoal] = useState<Goal>(goal);
   
@@ -232,34 +235,38 @@ export default function DashboardSimulation({
   // Projected 3-Month metrics calculator based on active habit category
   const getMetricsLabels = () => {
     switch (activeGoal.category) {
-      case 'Environment':
+      case 'Environment': {
+        const driving = formatDrivingStreak(streak, unitSystem);
         return {
           primaryBadge: 'Planet Win',
-          primaryValue: `${(streak * 5.1).toFixed(0)} mi`,
-          primaryLabel: 'Driving Miles Avoided',
+          primaryValue: driving.value,
+          primaryLabel: 'Driving emissions avoided',
           secondaryBadge: 'Personal Win',
           secondaryValue: `$${(streak * 2.33).toFixed(0)}`,
-          secondaryLabel: 'Grocery Money Saved',
-          targetTip: 'Plant-protein food swaps cut driving-equivalent emissions while saving hundreds on weekly groceries.'
+          secondaryLabel: 'Grocery budget saved',
+          targetTip: isUS
+            ? 'Plant-protein food swaps cut driving-equivalent emissions while saving hundreds on weekly groceries.'
+            : 'Plant-protein food swaps cut driving-equivalent emissions while saving hundreds on weekly groceries.'
         };
+      }
       case 'Well-Being':
         return {
           primaryBadge: 'Planet Win',
           primaryValue: `${(streak * 1.0).toFixed(0)} hrs`,
-          primaryLabel: 'Standby Power Saved',
+          primaryLabel: 'Standby power saved',
           secondaryBadge: 'Personal Win',
           secondaryValue: `${(streak * 0.75).toFixed(1)} hrs`,
-          secondaryLabel: 'Deep Sleep Recovered',
+          secondaryLabel: 'Deep sleep gained',
           targetTip: 'Powering down screens before bed saves electricity while resetting biological rhythm and restoring deep sleep.'
         };
       case 'Compassion':
         return {
           primaryBadge: 'Community Win',
           primaryValue: `${Math.max(1, Math.round(streak * 0.7))} people`,
-          primaryLabel: 'People Directly Brightened',
+          primaryLabel: 'People brightened',
           secondaryBadge: 'Personal Win',
           secondaryValue: `+${Math.min(35, Math.round(15 + streak * 1.5))}%`,
-          secondaryLabel: 'Mood & Resilience Lift',
+          secondaryLabel: 'Mood & resilience lift',
           targetTip: 'Intentional weekly kindness gestures trigger lasting reciprocal joy in your community and boost your personal happiness.'
         };
       case 'Responsible AI':
@@ -267,10 +274,10 @@ export default function DashboardSimulation({
         return {
           primaryBadge: 'Planet Win',
           primaryValue: `${(streak * 0.2).toFixed(1)} kWh`,
-          primaryLabel: 'Data Center Power Saved',
+          primaryLabel: 'Data center power saved',
           secondaryBadge: 'Personal Win',
           secondaryValue: `${Math.min(85, Math.round(35 + streak * 1.2))}%`,
-          secondaryLabel: 'Critical Thinking Preserved',
+          secondaryLabel: 'Critical thinking kept',
           targetTip: 'Fact-checking key generative responses saves grid compute energy while keeping your critical thinking sharp.'
         };
     }

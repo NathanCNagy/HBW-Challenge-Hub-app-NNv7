@@ -12,9 +12,11 @@ import {
   User, 
   LogOut, 
   Download,
-  Camera
+  Camera,
+  Globe
 } from 'lucide-react';
 import { QuizAnswers } from '../../types';
+import { useHabit } from '../../context/HabitContext';
 
 interface OverflowSettingsMenuProps {
   isOpen: boolean;
@@ -43,6 +45,7 @@ export default function OverflowSettingsMenu({
   onDownloadPDF,
   onOpenScreenshots
 }: OverflowSettingsMenuProps) {
+  const { unitSystem, setUnitSystem, isUS } = useHabit();
   const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
   const [editAge, setEditAge] = useState<string>(answers.age);
   const [editGender, setEditGender] = useState<string>(answers.gender);
@@ -160,6 +163,53 @@ export default function OverflowSettingsMenu({
                 >
                   <Moon className="w-3.5 h-3.5" />
                   <span>Dark</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Units & Measures Section */}
+            <div className={`p-3 border rounded-[16px] flex flex-col gap-2 ${
+              theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#0080FF]" />
+                  <span className="text-xs font-bold font-sans">Units & Measures</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#0080FF] font-semibold">
+                  {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}
+                </span>
+              </div>
+
+              <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 mt-0.5 ${
+                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+              }`}>
+                <button
+                  type="button"
+                  id="units-toggle-imperial-btn"
+                  onClick={() => setUnitSystem('imperial')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    unitSystem === 'imperial'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : theme === 'dark'
+                        ? 'text-[#98989D] hover:text-white'
+                        : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+                  }`}
+                >
+                  <span>US (mi)</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="units-toggle-metric-btn"
+                  onClick={() => setUnitSystem('metric')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    unitSystem === 'metric'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+                  }`}
+                >
+                  <span>Metric (km)</span>
                 </button>
               </div>
             </div>

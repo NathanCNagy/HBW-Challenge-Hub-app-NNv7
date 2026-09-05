@@ -56,30 +56,30 @@ export default function ProgressTab({
       />
 
       {/* Projected Impact Stats Grid */}
-      <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
-        <div className={`p-3.5 sm:p-4 border rounded-[16px] text-center space-y-1 shadow-xs transition-colors duration-200 min-w-0 overflow-hidden flex flex-col justify-center items-center ${
+      <div className="grid grid-cols-2 gap-3">
+        <div className={`py-4 px-3 sm:py-4.5 sm:px-4 border rounded-[16px] text-center shadow-xs transition-colors duration-200 min-w-0 flex flex-col justify-center items-center ${
           theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
         }`}>
-          <div className="w-full space-y-0.5">
-            <span className="text-base sm:text-lg font-sans font-bold text-[#0080FF] block w-full break-words leading-tight">
+          <div className="w-full space-y-1">
+            <span className="text-lg sm:text-xl font-mono font-bold text-[#0080FF] block w-full whitespace-nowrap tracking-tight overflow-hidden text-ellipsis">
               {metrics.primaryValue}
             </span>
-            <span className={`text-[10px] font-sans block truncate w-full ${
+            <span className={`text-[11px] sm:text-xs font-sans block leading-tight text-center ${
               theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
             }`}>{metrics.primaryLabel}</span>
           </div>
         </div>
 
-        <div className={`p-3.5 sm:p-4 border rounded-[16px] text-center space-y-1 shadow-xs transition-colors duration-200 min-w-0 overflow-hidden flex flex-col justify-center items-center ${
+        <div className={`py-4 px-3 sm:py-4.5 sm:px-4 border rounded-[16px] text-center shadow-xs transition-colors duration-200 min-w-0 flex flex-col justify-center items-center ${
           theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
         }`}>
-          <div className="w-full space-y-0.5">
-            <span className={`text-base sm:text-lg font-sans font-bold block w-full break-words leading-tight ${
+          <div className="w-full space-y-1">
+            <span className={`text-lg sm:text-xl font-mono font-bold block w-full whitespace-nowrap tracking-tight overflow-hidden text-ellipsis ${
               theme === 'dark' ? 'text-emerald-400' : 'text-emerald-700'
             }`}>
               {metrics.secondaryValue}
             </span>
-            <span className={`text-[10px] font-sans block truncate w-full ${
+            <span className={`text-[11px] sm:text-xs font-sans block leading-tight text-center ${
               theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
             }`}>{metrics.secondaryLabel}</span>
           </div>

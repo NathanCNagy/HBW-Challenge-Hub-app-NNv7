@@ -16,6 +16,7 @@ import HabitsManager from './HabitsManager';
 import SmartAlerts from './SmartAlerts';
 import CommunityChat from './CommunityChat';
 import SmartwatchSimulator from './SmartwatchSimulator';
+import { useHabit } from '../context/HabitContext';
 
 interface RealScreenRendererProps {
   screenId: string;
@@ -23,6 +24,7 @@ interface RealScreenRendererProps {
 }
 
 export default function RealScreenRenderer({ screenId, theme }: RealScreenRendererProps) {
+  const { isUS } = useHabit();
   // Local state for interactive / render fidelity
   const [answers, setAnswers] = useState<QuizAnswers>(SAMPLE_ANSWERS);
   const [activeGoal, setActiveGoal] = useState<Goal>(SAMPLE_GOAL);
@@ -51,7 +53,7 @@ export default function RealScreenRenderer({ screenId, theme }: RealScreenRender
 
   const sampleMetrics = {
     primaryBadge: 'Planet Win',
-    primaryValue: '71.4 mi',
+    primaryValue: isUS ? '71.4 mi' : '114.9 km',
     primaryLabel: 'Emissions Avoided',
     secondaryBadge: 'Personal Win',
     secondaryValue: '$32.60',

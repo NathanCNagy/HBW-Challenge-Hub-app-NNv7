@@ -14,6 +14,7 @@ import {
 } from '../services/storage';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
+import { UnitSystem, getInitialUnitSystem } from '../utils/units';
 
 export interface UserProfile {
   displayName: string;
@@ -40,6 +41,11 @@ export interface HabitContextValue {
   // Theme
   theme: 'dark' | 'light';
   toggleTheme: (newTheme?: 'dark' | 'light') => void;
+
+  // Unit System (Imperial / US vs Metric / International)
+  unitSystem: UnitSystem;
+  setUnitSystem: (system: UnitSystem) => void;
+  isUS: boolean;
 
   // Routine & Metrics
   streak: number;
@@ -96,6 +102,16 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
     if (saved === 'dark' || saved === 'light') return saved;
     return 'light';
   });
+
+  // Unit System (auto-detected for US vs Rest of World with local persistence)
+  const [unitSystem, setUnitSystemState] = useState<UnitSystem>(() => getInitialUnitSystem());
+
+  const setUnitSystem = (newSystem: UnitSystem) => {
+    setUnitSystemState(newSystem);
+    storage.set('hbw_unit_system', newSystem);
+  };
+
+  const isUS = unitSystem === 'imperial';
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
@@ -185,6 +201,9 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
         updateAnswers,
         theme,
         toggleTheme,
+        unitSystem,
+        setUnitSystem,
+        isUS,
         streak,
         incrementStreak,
         individualEnergy,
