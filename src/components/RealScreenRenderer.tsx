@@ -140,6 +140,9 @@ export default function RealScreenRenderer({ screenId, theme }: RealScreenRender
           onLogSuccess={() => {}}
           bubbles={bubbles}
           setBubbles={setBubbles}
+          checklist={checklist}
+          onCheckItem={(item) => setChecklist(c => ({ ...c, [item]: !c[item] }))}
+          anchorHabit={anchorHabit}
           metrics={sampleMetrics}
           theme={theme}
         />

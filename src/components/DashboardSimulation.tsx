@@ -430,6 +430,9 @@ export default function DashboardSimulation({
             onLogSuccess={handleLogSuccess}
             bubbles={bubbles}
             setBubbles={setBubbles}
+            checklist={checklist}
+            onCheckItem={handleCheckItem}
+            anchorHabit={anchorHabit}
             metrics={metrics}
             theme={theme}
           />
