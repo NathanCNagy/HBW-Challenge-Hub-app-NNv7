@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Trophy, ShieldCheck, Heart, Sparkles, Award, Zap, Users, Info, Target, CheckCircle2, ChevronRight, Flame, Cloud } from 'lucide-react';
+import { Trophy, ShieldCheck, Heart, Sparkles, Zap, Users, Info, Flame, Cloud } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface EcosystemVisualizationProps {
@@ -15,15 +15,6 @@ interface EcosystemVisualizationProps {
   theme?: 'dark' | 'light';
 }
 
-interface Badge {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  unlockedAt: number; // streak needed to unlock
-  isGroup: boolean;
-}
-
 export default function EcosystemVisualization({
   category,
   streak,
@@ -36,7 +27,6 @@ export default function EcosystemVisualization({
   setBubbles,
   theme = 'light'
 }: EcosystemVisualizationProps) {
-  const [activeBadge, setActiveBadge] = useState<Badge | null>(null);
   const [raindrops, setRaindrops] = useState<{ id: string; startX: number; startY: number; targetX: number; delay: number; size: number }[]>([]);
   const [isHydrating, setIsHydrating] = useState<boolean>(false);
   const [hydrationMessage, setHydrationMessage] = useState<string>('');
@@ -68,28 +58,6 @@ export default function EcosystemVisualization({
       setIsHydrating(false);
     }, 1400);
   };
-
-  // Badge list with milestones
-  const badges: Badge[] = [
-    { id: 'b-1', name: 'Seedling Committer', description: 'Log your first habit activity to establish your ecosystem seed.', icon: '🌱', unlockedAt: 1, isGroup: false },
-    { id: 'b-2', name: 'Anchor Trailblazer', description: 'Successfully trigger your micro habit consistently for 7 consecutive days.', icon: '⚡', unlockedAt: 7, isGroup: false },
-    { id: 'b-3', name: 'Ecosystem Master', description: 'Achieve a 14-day streak, nurturing your local node and reclaiming focus.', icon: '💎', unlockedAt: 14, isGroup: false },
-    { id: 'b-4', name: '90-Day Visionary', description: 'Complete 21+ days toward your 90-day systemic personal transformation.', icon: '👑', unlockedAt: 21, isGroup: false },
-    { id: 'g-1', name: 'Forest of Cooperation', description: 'Your challenge group collective score exceeds 500k actions.', icon: '🌳', unlockedAt: 1, isGroup: true },
-    { id: 'g-2', name: 'Systemic Slasher Alliance', description: 'The challenge group collective carbon reduction surpasses 50,000 kg.', icon: '🌍', unlockedAt: 7, isGroup: true },
-  ];
-
-  // Calculate Next Badge Unlock Progress
-  const nextBadge = badges.find(b => !b.isGroup && streak < b.unlockedAt) || null;
-  const prevBadge = badges.filter(b => !b.isGroup && streak >= b.unlockedAt).pop() || null;
-  const prevStreakTarget = prevBadge ? prevBadge.unlockedAt : 0;
-  const nextStreakTarget = nextBadge ? nextBadge.unlockedAt : (prevBadge ? prevBadge.unlockedAt : 21);
-  const daysInCurrentTier = Math.max(0, streak - prevStreakTarget);
-  const totalTierSpan = Math.max(1, nextStreakTarget - prevStreakTarget);
-  const badgeProgressPercent = nextBadge 
-    ? Math.min(100, Math.round((daysInCurrentTier / totalTierSpan) * 100))
-    : 100;
-  const daysRemaining = nextBadge ? nextBadge.unlockedAt - streak : 0;
 
   // Group stats mapped to categories
   const groupStats = {
@@ -476,214 +444,6 @@ export default function EcosystemVisualization({
           </div>
         </div>
       </div>
-
-      {/* Next Badge Progress Spotlight Card */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center justify-between min-w-0">
-          <div className="flex items-center gap-2">
-            <Target className="w-4 h-4 text-[#0080FF]" />
-            <h4 className={`text-xs font-sans font-bold uppercase tracking-wider ${
-              theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
-            }`}>
-              Next Badge Unlock
-            </h4>
-          </div>
-          {nextBadge ? (
-            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#0080FF]/15 text-[#0080FF]">
-              {streak} / {nextBadge.unlockedAt} Days ({badgeProgressPercent}%)
-            </span>
-          ) : (
-            <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#34C759]/15 text-[#34C759]">
-              ALL BADGES UNLOCKED! 🎉
-            </span>
-          )}
-        </div>
-
-        {nextBadge ? (
-          <div className="flex flex-col gap-3 pt-0.5">
-            <div className="flex items-center gap-3">
-              <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-2xl shrink-0 border relative ${
-                theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-              }`}>
-                <span>{nextBadge.icon}</span>
-                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#0080FF] opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-[#0080FF]"></span>
-                </span>
-              </div>
-
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h5 className={`text-sm font-bold leading-tight truncate ${
-                    theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
-                  }`}>
-                    {nextBadge.name}
-                  </h5>
-                  <span className={`text-[11px] font-mono font-semibold shrink-0 ${
-                    daysRemaining === 1 ? 'text-[#FF9500] font-bold' : theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
-                  }`}>
-                    {daysRemaining === 1 ? '🔥 1 day left!' : `${daysRemaining} days left`}
-                  </span>
-                </div>
-                <p className={`text-xs leading-normal mt-0.5 truncate ${
-                  theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
-                }`}>
-                  {nextBadge.description}
-                </p>
-              </div>
-            </div>
-
-            {/* Visual Animated Progress Bar */}
-            <div className="space-y-1.5">
-              <div className={`w-full h-2.5 rounded-full overflow-hidden p-0.5 border ${
-                theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-              }`}>
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${badgeProgressPercent}%` }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                  className="h-full bg-gradient-to-r from-[#0080FF] to-sky-400 rounded-full"
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-[11px] font-sans">
-                <span className={theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}>
-                  Current streak: <strong className={theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'}>{streak} {streak === 1 ? 'day' : 'days'}</strong>
-                </span>
-                {!hasLoggedToday ? (
-                  <button
-                    onClick={onLogToday}
-                    className="text-[#0080FF] font-semibold hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <span>Log habit today</span>
-                    <ChevronRight className="w-3 h-3" />
-                  </button>
-                ) : (
-                  <span className="text-[#34C759] font-medium flex items-center gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    Logged today!
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="p-2 text-center space-y-0.5">
-            <p className={`text-xs font-semibold ${theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'}`}>
-              🏆 You've unlocked all individual streak milestones!
-            </p>
-            <p className={`text-xs ${theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
-              Keep logging daily to power your group's collective ecosystem score.
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Badges / Milestones section */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center justify-between">
-          <h4 className="text-xs font-sans font-bold uppercase tracking-wider flex items-center gap-2">
-            <Award className="w-4 h-4 text-[#0080FF]" />
-            All Badges & Milestones
-          </h4>
-          <span className={`text-xs font-mono ${theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>Streak: {streak} days</span>
-        </div>
-
-        <div className="grid grid-cols-4 gap-2">
-          {badges.map((badge) => {
-            const isUnlocked = streak >= badge.unlockedAt;
-            const isNext = nextBadge?.id === badge.id;
-            return (
-              <button
-                key={badge.id}
-                onClick={() => setActiveBadge(badge)}
-                className={`relative p-2.5 rounded-[14px] border flex flex-col items-center justify-center gap-1 text-center transition-all cursor-pointer ${
-                  isUnlocked
-                    ? theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24] hover:border-[#0080FF]' : 'bg-[#F5F5F7] border-[#E5E5EA] hover:border-[#0080FF]'
-                    : isNext
-                      ? theme === 'dark' ? 'bg-[#0080FF]/10 border-[#0080FF] ring-1 ring-[#0080FF]/50' : 'bg-[#0080FF]/5 border-[#0080FF] ring-1 ring-[#0080FF]/30'
-                      : theme === 'dark' ? 'bg-[#0A0A0C]/50 border-[#1F1F24]/50 opacity-40 hover:opacity-60' : 'bg-[#F5F5F7]/50 border-[#E5E5EA]/50 opacity-40 hover:opacity-60'
-                }`}
-              >
-                <span className="text-2xl block select-none">{isUnlocked ? badge.icon : '🔒'}</span>
-                <span className={`text-[10px] font-sans font-semibold leading-none truncate w-full block ${
-                  theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
-                }`}>
-                  {badge.name.split(' ')[0]}
-                </span>
-                {isNext && (
-                  <span className="absolute -top-1 -right-1 text-[8px] font-bold font-mono px-1.5 py-0.5 bg-[#0080FF] text-white rounded-full shadow-xs">
-                    NEXT
-                  </span>
-                )}
-                {badge.isGroup && !isNext && (
-                  <span className="absolute -top-1 -right-1 text-[8px] font-bold font-mono px-1.5 py-0.5 bg-[#0080FF] text-white rounded-full">
-                    GP
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Badge detail interactive modal overlay */}
-      <AnimatePresence>
-        {activeBadge && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, y: 15 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 15 }}
-              className={`border rounded-[20px] max-w-xs w-full p-5 space-y-4 shadow-xl text-center ${
-                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24] text-white' : 'bg-white border-[#E5E5EA] text-[#1C1C1E]'
-              }`}
-            >
-              <div className={`w-16 h-16 border rounded-full mx-auto flex items-center justify-center text-4xl shadow-inner ${
-                theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-              }`}>
-                {streak >= activeBadge.unlockedAt ? activeBadge.icon : '🔒'}
-              </div>
-              
-              <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0080FF]">
-                  {activeBadge.isGroup ? 'GROUP REWARD' : 'INDIVIDUAL BADGE'}
-                </span>
-                <h4 className={`text-base font-serif font-semibold ${theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'}`}>{activeBadge.name}</h4>
-                <p className={`text-xs font-sans leading-normal ${theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
-                  {activeBadge.description}
-                </p>
-              </div>
-
-              <div className="pt-2 flex flex-col gap-2">
-                <div className={`text-xs font-mono py-2 px-3 rounded-full border ${
-                  theme === 'dark' ? 'text-[#98989D] bg-[#0A0A0C] border-[#1F1F24]' : 'text-[#6C6C70] bg-[#F5F5F7] border-[#E5E5EA]'
-                }`}>
-                  {streak >= activeBadge.unlockedAt 
-                    ? `🏆 UNLOCKED · Level verified` 
-                    : `🔒 LOCKED · Requires ${activeBadge.unlockedAt} day streak`}
-                </div>
-                
-                <button
-                  onClick={() => setActiveBadge(null)}
-                  className="w-full h-[44px] bg-[#0080FF] hover:bg-[#0066CC] text-white font-sans text-xs font-semibold rounded-full transition-colors cursor-pointer"
-                >
-                  Close Detail
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
