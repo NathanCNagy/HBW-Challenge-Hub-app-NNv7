@@ -255,14 +255,14 @@ export default function ProfileTab({
         </div>
       </div>
 
-      {/* Units & Measurements Selector */}
+      {/* Impact Measurements Selector */}
       <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
         theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
       }`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-[#0080FF]" />
-            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Units & Measurements</h4>
+            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Impact Measurements</h4>
           </div>
           <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2.5 py-0.5 rounded-full">
             {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}

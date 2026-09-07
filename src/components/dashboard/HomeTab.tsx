@@ -9,7 +9,8 @@ import {
   Calendar, 
   Sparkles, 
   Bell, 
-  X 
+  X,
+  ArrowRight
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Goal } from '../../types';
@@ -80,7 +81,7 @@ export default function HomeTab({
         {/* Link to Progress Tab for habit tracking & logging */}
         <button
           onClick={() => onNavigateToTab('progress')}
-          className={`h-[46px] w-full rounded-full font-sans font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] ${
+          className={`h-[46px] w-full px-6 rounded-full font-sans font-semibold text-xs sm:text-[13px] transition-all flex items-center justify-center gap-2.5 cursor-pointer shadow-xs active:scale-[0.99] ${
             hasLoggedToday
               ? theme === 'dark'
                 ? 'bg-[#0080FF]/15 hover:bg-[#0080FF]/25 text-[#0080FF] border border-[#0080FF]/30'
@@ -88,9 +89,9 @@ export default function HomeTab({
               : 'bg-[#0080FF] hover:bg-[#0066CC] text-white'
           }`}
         >
-          <Calendar className="w-4 h-4" />
-          <span>{hasLoggedToday ? "View Today's Progress & Checklist" : "Log Habits in Progress Tab"}</span>
-          <span className="text-sm font-bold">&rarr;</span>
+          <Calendar className="w-4 h-4 shrink-0" />
+          <span className="truncate">{hasLoggedToday ? "View Today's Progress & Checklist" : "Log Habits in Progress Tab"}</span>
+          <ArrowRight className="w-4 h-4 shrink-0" />
         </button>
       </div>
 
