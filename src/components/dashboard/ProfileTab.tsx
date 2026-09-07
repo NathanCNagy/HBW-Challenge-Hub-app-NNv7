@@ -269,14 +269,6 @@ export default function ProfileTab({
           </span>
         </div>
 
-        <p className={`text-xs leading-relaxed font-sans ${
-          theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
-        }`}>
-          {isUS 
-            ? 'Using US measures (miles, mi). Driving emissions and impact metrics reflect US standard units.' 
-            : 'Using international metric measures (kilometres, km). Driving emissions and impact metrics reflect metric standard units.'}
-        </p>
-
         <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
           theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
         }`}>

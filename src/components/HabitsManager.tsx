@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
-import { Goal, Category } from '../types';
-import { STATIC_GOALS } from '../data';
-import { AlertTriangle, Plus, Check, BookOpen, Trash2, RotateCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Goal } from '../types';
+import { AlertTriangle, Trash2, RotateCcw } from 'lucide-react';
 
 interface HabitsManagerProps {
   activeGoal: Goal;
@@ -14,14 +13,14 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
   const isDark = theme === 'dark';
   // Store multiple chosen habits. Initially contains the onboarding-committed habit.
   const [chosenHabits, setChosenHabits] = useState<Goal[]>([activeGoal]);
-  const [showCatalog, setShowCatalog] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<Category>('Environment');
 
-  // Add a habit to the active wardrobe
-  const handleAddHabit = (goal: Goal) => {
-    if (chosenHabits.some(g => g.id === goal.id)) return;
-    setChosenHabits([...chosenHabits, goal]);
-  };
+  // Sync if activeGoal changes (e.g. from quiz or external reset)
+  useEffect(() => {
+    setChosenHabits(prev => {
+      if (prev.some(g => g.id === activeGoal.id)) return prev;
+      return [activeGoal, ...prev];
+    });
+  }, [activeGoal]);
 
   // Remove habit from wardrobe (ensure we keep at least one)
   const handleRemoveHabit = (id: string) => {
@@ -39,8 +38,6 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
     setActiveGoal(goal);
   };
 
-  const allCategories: Category[] = ['Environment', 'Well-Being', 'Compassion', 'Responsible AI'];
-
   return (
     <div className={`flex flex-col gap-4 w-full ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>
       {/* Currently Active & Selected Habits */}
@@ -56,8 +53,9 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
               The One Habit Rule
             </span>
           </div>
-          <p className={`text-xs leading-relaxed font-sans ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
-            Focusing on one habit at a time makes you 80% more likely to succeed.
+          <p className={`text-xs leading-relaxed font-sans flex items-center gap-1.5 ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
+            <span className="text-sm shrink-0" role="img" aria-label="caution">⚠️</span>
+            <span>Focusing on one habit at a time makes you 80% more likely to succeed.</span>
           </p>
         </div>
         
@@ -133,106 +131,21 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
           </div>
         )}
 
-        {/* Options to add a new habit: redoing the quiz or browsing habits */}
-        <div className={`border-t pt-3 mt-1.5 space-y-2 ${isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'}`}>
-          <span className={`text-[10px] font-mono uppercase tracking-wider block text-center font-bold ${
-            isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
-          }`}>
-            Add a New Habit
-          </span>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              onClick={() => setShowCatalog(!showCatalog)}
-              className={`h-[44px] text-xs font-sans font-semibold rounded-full transition-all flex items-center justify-center gap-1.5 border cursor-pointer ${
-                showCatalog 
-                  ? 'bg-[#0080FF] text-white border-[#0080FF]' 
-                  : isDark
-                    ? 'bg-[#18181B] hover:bg-[#27272A] text-[#0080FF] border-[#27272A]'
-                    : 'bg-[#F5F5F7] hover:bg-[#E5E5EA] text-[#0080FF] border-[#E5E5EA]'
-              }`}
-            >
-              <BookOpen className="w-4 h-4" />
-              <span>{showCatalog ? 'Close Catalog' : 'Browse'}</span>
-            </button>
-            <button
-              onClick={onResetQuiz}
-              className={`h-[44px] border font-sans text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                isDark
-                  ? 'bg-[#18181B] hover:bg-[#27272A] text-white border-[#27272A]'
-                  : 'bg-[#F5F5F7] hover:bg-[#E5E5EA] text-[#1C1C1E] border-[#E5E5EA]'
-              }`}
-            >
-              <RotateCcw className="w-4 h-4 text-[#0080FF]" />
-              <span>Redo Quiz</span>
-            </button>
-          </div>
+        {/* Option to redo the clinical quiz */}
+        <div className={`border-t pt-3 mt-1.5 ${isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'}`}>
+          <button
+            onClick={onResetQuiz}
+            className={`w-full h-[44px] border font-sans text-xs font-semibold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer ${
+              isDark
+                ? 'bg-[#18181B] hover:bg-[#27272A] text-white border-[#27272A]'
+                : 'bg-[#F5F5F7] hover:bg-[#E5E5EA] text-[#1C1C1E] border-[#E5E5EA]'
+            }`}
+          >
+            <RotateCcw className="w-4 h-4 text-[#0080FF]" />
+            <span>Redo Quiz to Change Habit</span>
+          </button>
         </div>
       </div>
-
-      {/* Slide-out / Collapsible Habits catalogue */}
-      {showCatalog && (
-        <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 ${
-          isDark ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-        }`}>
-          <div className={`flex items-center gap-2 border-b pb-2.5 ${isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'}`}>
-            <BookOpen className="w-4 h-4 text-[#0080FF]" />
-            <h4 className={`text-xs font-sans font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>
-              Habits Collection
-            </h4>
-          </div>
-
-          {/* Horizontal Category Pill Tabs */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 shrink-0">
-            {allCategories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 text-xs font-medium rounded-full shrink-0 transition-all cursor-pointer ${
-                  selectedCategory === cat
-                    ? 'bg-[#0080FF] text-white'
-                    : isDark
-                      ? 'bg-[#0A0A0C] text-[#98989D] hover:text-white border border-[#1F1F24]'
-                      : 'bg-[#F5F5F7] text-[#6C6C70] hover:text-[#1C1C1E] border border-[#E5E5EA]'
-                }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* List of goals in category */}
-          <div className="space-y-2 max-h-[250px] overflow-y-auto pr-1">
-            {STATIC_GOALS[selectedCategory].map((goal) => {
-              const alreadyChosen = chosenHabits.some(g => g.id === goal.id);
-              return (
-                <div 
-                  key={goal.id} 
-                  className={`p-3 border rounded-[12px] flex items-start justify-between gap-3 ${
-                    isDark ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-                  }`}
-                >
-                  <div className="space-y-0.5">
-                    <h6 className={`font-serif font-semibold text-xs leading-tight ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>{goal.title}</h6>
-                    <p className={`text-xs font-sans leading-normal ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>{goal.action}</p>
-                  </div>
-
-                  <button
-                    disabled={alreadyChosen}
-                    onClick={() => handleAddHabit(goal)}
-                    className={`p-1.5 rounded-full transition-all shrink-0 cursor-pointer ${
-                      alreadyChosen
-                        ? isDark ? 'text-emerald-400 bg-emerald-950/50 border border-emerald-800/50 cursor-default' : 'text-emerald-600 bg-emerald-50 border border-emerald-200 cursor-default'
-                        : isDark ? 'text-[#0080FF] bg-[#121214] border border-[#1F1F24] hover:bg-[#0080FF] hover:text-white' : 'text-[#0080FF] bg-white border border-[#E5E5EA] hover:bg-[#0080FF] hover:text-white'
-                    }`}
-                  >
-                    {alreadyChosen ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
