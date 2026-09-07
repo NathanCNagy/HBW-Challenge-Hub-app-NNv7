@@ -363,204 +363,104 @@ export default function EcosystemVisualization({
                 <stop offset="100%" stopColor="#0B1B2B" />
               </linearGradient>
 
-              {/* Organic Canopy Gradients */}
+              {/* Organic Canopy Gradients with HBW Palette */}
               <linearGradient id="botanicalCanopyLight" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#1B5E20" />
-                <stop offset="35%" stopColor="#2E7D32" />
-                <stop offset="70%" stopColor="#388E3C" />
-                <stop offset="100%" stopColor="#4CAF50" />
+                <stop offset="0%" stopColor="#1E8236" />
+                <stop offset="35%" stopColor="#28A745" />
+                <stop offset="70%" stopColor="#34C759" />
+                <stop offset="100%" stopColor="#4ADE80" />
               </linearGradient>
               <linearGradient id="botanicalCanopyDark" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#023047" />
-                <stop offset="40%" stopColor="#0077B6" />
-                <stop offset="75%" stopColor="#0096C7" />
-                <stop offset="100%" stopColor="#00B4D8" />
+                <stop offset="0%" stopColor="#004D99" />
+                <stop offset="40%" stopColor="#0066CC" />
+                <stop offset="75%" stopColor="#0080FF" />
+                <stop offset="100%" stopColor="#38BDF8" />
               </linearGradient>
 
               {/* Soft Soil Mound Gradient */}
               <linearGradient id="soilLight" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#81B29A" />
+                <stop offset="0%" stopColor="#34C759" stopOpacity="0.4" />
                 <stop offset="40%" stopColor="#62929E" />
                 <stop offset="100%" stopColor="#3F5E6B" />
               </linearGradient>
               <linearGradient id="soilDark" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#102A43" />
+                <stop offset="0%" stopColor="#0080FF" stopOpacity="0.35" />
                 <stop offset="45%" stopColor="#0A1C2E" />
                 <stop offset="100%" stopColor="#050E18" />
               </linearGradient>
             </defs>
 
-            {/* === LEFT BOTANICAL HEIGHT RULER (Spans all the way from y=0 down to ground) === */}
-            {/* Ruler vertical spine line */}
-            <line 
-              x1="38" 
-              y1="0" 
-              x2="38" 
-              y2="336" 
-              stroke={theme === 'dark' ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.2)'} 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-            />
-
-            {/* Ruler major calibration tick marks (every 20 units) */}
-            {[0, 20, 40, 60, 80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300, 320].map((tickY) => (
-              <line 
-                key={`maj-${tickY}`}
-                x1="31" 
-                y1={tickY} 
-                x2="38" 
-                y2={tickY} 
-                stroke={theme === 'dark' ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.22)'} 
-                strokeWidth="1.5" 
-              />
-            ))}
-
-            {/* Ruler minor calibration tick marks (every 10 units) */}
-            {[10, 30, 50, 70, 90, 110, 130, 150, 170, 190, 210, 230, 250, 270, 290, 310, 330].map((tickY) => (
-              <line 
-                key={`min-${tickY}`}
-                x1="34" 
-                y1={tickY} 
-                x2="38" 
-                y2={tickY} 
-                stroke={theme === 'dark' ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.12)'} 
-                strokeWidth="1" 
-              />
-            ))}
-
-            {/* NEXT MILESTONE PROMINENTLY ANCHORED NEAR THE TOP OF THE TILE (y = 48) */}
+            {/* === ONE SIMPLE MILESTONE LINE (Positioned slightly lower than Habit Energy label) === */}
             {!isMastered ? (
               <g>
-                {/* Target milestone tick bracket on ruler */}
+                {/* Horizontal milestone target guideline */}
                 <line 
-                  x1="26" 
+                  x1="20" 
                   y1={targetMilestoneY} 
-                  x2="48" 
+                  x2="340" 
                   y2={targetMilestoneY} 
                   stroke="#0080FF" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
+                  strokeWidth="1.5" 
+                  strokeDasharray="4 4" 
+                  opacity={theme === 'dark' ? 0.75 : 0.6} 
                 />
 
-                {/* Luminous target milestone pip */}
+                {/* Left accent pip */}
                 <circle 
-                  cx="53" 
+                  cx="24" 
                   cy={targetMilestoneY} 
                   r="3.5" 
                   fill="#0080FF" 
-                  className="animate-pulse" 
                 />
 
-                {/* Horizontal guide reaching toward the plant tip */}
-                <line 
-                  x1="60" 
-                  y1={targetMilestoneY} 
-                  x2="152" 
-                  y2={targetMilestoneY} 
-                  stroke="#0080FF" 
-                  strokeWidth="1.2" 
-                  strokeDasharray="3 3" 
-                  opacity="0.45" 
+                {/* Right accent pip */}
+                <circle 
+                  cx="336" 
+                  cy={targetMilestoneY} 
+                  r="3.5" 
+                  fill="#0080FF" 
                 />
 
-                {/* Milestone label badge near the top */}
-                <rect 
-                  x="3" 
-                  y={targetMilestoneY - 12} 
-                  width="32" 
-                  height="24" 
-                  rx="4" 
-                  fill={theme === 'dark' ? 'rgba(0,128,255,0.22)' : 'rgba(0,128,255,0.12)'} 
-                  stroke="#0080FF" 
-                  strokeWidth="1" 
-                />
+                {/* Milestone label with larger, prominent text */}
                 <text 
-                  x="19" 
-                  y={targetMilestoneY - 2} 
-                  textAnchor="middle" 
-                  fontSize="7.5" 
+                  x="34" 
+                  y={targetMilestoneY - 6} 
+                  fontSize="12" 
                   fontFamily="monospace" 
                   fontWeight="bold" 
                   fill="#0080FF"
+                  className="select-none tracking-wide"
                 >
-                  {nextMilestone.days}d
-                </text>
-                <text 
-                  x="19" 
-                  y={targetMilestoneY + 7.5} 
-                  textAnchor="middle" 
-                  fontSize="6.5" 
-                  fontFamily="sans-serif" 
-                  fontWeight="bold" 
-                  fill={theme === 'dark' ? '#E5E5EA' : '#1C1C1E'}
-                >
-                  {daysToNext}d left
+                  NEXT MILESTONE: {nextMilestone.days}D {nextMilestone.stageName?.toUpperCase() || 'STAGE'} ({daysToNext}d left)
                 </text>
               </g>
             ) : (
               <g>
-                {/* Mastered / Full Bloom Achieved at top */}
                 <line 
-                  x1="26" 
+                  x1="20" 
                   y1={targetMilestoneY} 
-                  x2="48" 
+                  x2="340" 
                   y2={targetMilestoneY} 
-                  stroke="#FFD700" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
+                  stroke="#34C759" 
+                  strokeWidth="1.5" 
+                  strokeDasharray="4 4" 
+                  opacity={theme === 'dark' ? 0.75 : 0.6} 
                 />
-                <circle cx="53" cy={targetMilestoneY} r="3.5" fill="#FFD700" className="animate-ping" />
-                <rect 
-                  x="3" 
-                  y={targetMilestoneY - 12} 
-                  width="32" 
-                  height="24" 
-                  rx="4" 
-                  fill="rgba(255,215,0,0.22)" 
-                  stroke="#FFD700" 
-                  strokeWidth="1" 
-                />
+                <circle cx="24" cy={targetMilestoneY} r="3.5" fill="#34C759" />
+                <circle cx="336" cy={targetMilestoneY} r="3.5" fill="#34C759" />
                 <text 
-                  x="19" 
-                  y={targetMilestoneY - 2} 
-                  textAnchor="middle" 
-                  fontSize="7.5" 
+                  x="34" 
+                  y={targetMilestoneY - 6} 
+                  fontSize="12" 
                   fontFamily="monospace" 
                   fontWeight="bold" 
-                  fill="#FFD700"
-                >
-                  BLOOM
-                </text>
-                <text 
-                  x="19" 
-                  y={targetMilestoneY + 7.5} 
-                  textAnchor="middle" 
-                  fontSize="6.5" 
-                  fontFamily="sans-serif" 
-                  fontWeight="bold" 
                   fill="#34C759"
+                  className="select-none tracking-wide"
                 >
-                  30d ✓
+                  MILESTONE REACHED: 30D FULL BLOOM 🌟
                 </text>
               </g>
             )}
-
-            {/* CURRENT PLANT HEIGHT INDICATOR CLIMBING THE RULER */}
-            <polygon 
-              points={`31,${plantTipY - 4} 37,${plantTipY} 31,${plantTipY + 4}`} 
-              fill="#34C759" 
-            />
-            <text 
-              x="28" 
-              y={plantTipY + 3} 
-              textAnchor="end" 
-              fontSize="7.5" 
-              fontFamily="monospace" 
-              fontWeight="bold" 
-              fill="#34C759"
-            >
-              {streak}d
-            </text>
 
             {/* === ARTISTIC BOTANICAL PLANT ILLUSTRATION (NO GEOMETRIC SHAPES) === */}
 

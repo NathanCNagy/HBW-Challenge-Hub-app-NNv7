@@ -9,7 +9,6 @@ import {
   LogOut, 
   Sun, 
   Moon, 
-  Download,
   Globe
 } from 'lucide-react';
 import { Goal, QuizAnswers } from '../../types';
@@ -31,7 +30,7 @@ interface ProfileTabProps {
   anchorHabit: string;
   setAnchorHabit: (anchor: string) => void;
   setHasConfiguredNotifications: (configured: boolean) => void;
-  onDownloadPDF: () => void;
+  onDownloadPDF?: () => void;
 }
 
 export default function ProfileTab({
@@ -220,7 +219,7 @@ export default function ProfileTab({
         <p className={`text-xs leading-relaxed font-sans ${
           theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
         }`}>
-          Choose your preferred theme. Dark mode saves battery on OLED displays and reduces eye strain.
+          Dark mode reduces energy consumption and screen glare.
         </p>
 
         <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
@@ -333,25 +332,6 @@ export default function ProfileTab({
         onResetQuiz={onReset}
         theme={theme}
       />
-
-      {/* PDF Habit Plan Download */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex items-center justify-between transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center gap-2.5">
-          <Download className="w-5 h-5 text-[#34C759]" />
-          <div>
-            <h4 className="text-xs font-bold leading-tight">Habit Plan PDF</h4>
-            <p className={`text-[11px] ${theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>Printable 90-day action sheet</p>
-          </div>
-        </div>
-        <button
-          onClick={onDownloadPDF}
-          className="px-3.5 py-1.5 bg-[#34C759] hover:bg-[#28A745] text-white text-xs font-bold rounded-full transition-colors cursor-pointer shadow-xs"
-        >
-          Download PDF
-        </button>
-      </div>
     </div>
   );
 }

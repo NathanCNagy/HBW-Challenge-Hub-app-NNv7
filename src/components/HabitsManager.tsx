@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Goal, Category } from '../types';
 import { STATIC_GOALS } from '../data';
-import { AlertTriangle, Plus, Check, ShieldAlert, Sparkles, BookOpen, Trash2, RotateCcw } from 'lucide-react';
+import { AlertTriangle, Plus, Check, BookOpen, Trash2, RotateCcw } from 'lucide-react';
 
 interface HabitsManagerProps {
   activeGoal: Goal;
@@ -43,30 +43,23 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
 
   return (
     <div className={`flex flex-col gap-4 w-full ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>
-      {/* Behaviour Science Caution Banner */}
-      <div className={`p-4 border rounded-[16px] flex gap-3 shadow-xs ${
-        isDark
-          ? 'bg-amber-950/40 border-amber-800/60 text-amber-200'
-          : 'bg-amber-50/80 border-amber-200 text-amber-900'
-      }`}>
-        <ShieldAlert className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <h4 className={`text-xs font-mono font-bold uppercase tracking-wider ${isDark ? 'text-amber-300' : 'text-amber-800'}`}>
-            The One Habit Rule
-          </h4>
-          <p className="text-xs leading-relaxed font-sans">
-            Research shows focusing on one habit at a time makes you <strong>80% more likely to succeed</strong>. Lock in your main habit first before adding more.
-          </p>
-        </div>
-      </div>
-
       {/* Currently Active & Selected Habits */}
       <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 ${
         isDark ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
       }`}>
-        <h4 className={`text-xs font-sans font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>
-          My Active Habits
-        </h4>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <h4 className={`text-xs font-sans font-bold uppercase tracking-wider ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>
+              My Active Habits
+            </h4>
+            <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/10 px-2 py-0.5 rounded-full">
+              The One Habit Rule
+            </span>
+          </div>
+          <p className={`text-xs leading-relaxed font-sans ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
+            Focusing on one habit at a time makes you 80% more likely to succeed.
+          </p>
+        </div>
         
         <div className="space-y-2.5">
           {chosenHabits.map((habit) => {
@@ -98,7 +91,6 @@ export default function HabitsManager({ activeGoal, setActiveGoal, onResetQuiz, 
                     )}
                   </div>
                   <h5 className={`font-serif font-semibold text-sm leading-tight ${isDark ? 'text-white' : 'text-[#1C1C1E]'}`}>{habit.title}</h5>
-                  <p className={`text-xs font-sans leading-normal ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>{habit.action}</p>
                 </div>
 
                 <div className={`flex gap-2 shrink-0 w-full sm:w-auto justify-end border-t sm:border-t-0 pt-2 sm:pt-0 ${

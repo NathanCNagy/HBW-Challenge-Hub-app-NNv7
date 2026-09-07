@@ -74,6 +74,32 @@ export default function SmartAlerts({
     }
   }, [triggers]);
 
+  // Helper to categorize and sort triggers by time of day
+  const timeGroups = [
+    { id: 'morning' as const, label: 'Morning', range: '4:00 AM – 11:59 AM', icon: '🌅' },
+    { id: 'afternoon' as const, label: 'Afternoon', range: '12:00 PM – 4:59 PM', icon: '☀️' },
+    { id: 'evening' as const, label: 'Evening', range: '5:00 PM – 3:59 AM', icon: '🌙' },
+  ];
+
+  const getTimeGroup = (timeStr?: string) => {
+    if (!timeStr) return 'morning';
+    const [hStr] = timeStr.split(':');
+    const h = parseInt(hStr, 10) || 0;
+    if (h >= 4 && h < 12) return 'morning';
+    if (h >= 12 && h < 17) return 'afternoon';
+    return 'evening';
+  };
+
+  const organizedGroups = timeGroups.map(group => {
+    const groupTriggers = triggers
+      .filter(t => getTimeGroup(t.time) === group.id)
+      .sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
+    return {
+      ...group,
+      triggers: groupTriggers
+    };
+  });
+
   // Primary active trigger for preview
   const primaryTrigger = triggers.find((t) => t.enabled) || triggers[0] || {
     id: 'placeholder',
@@ -223,38 +249,64 @@ export default function SmartAlerts({
           )}
         </div>
 
-        {/* List of active triggers */}
-        <div className="flex flex-col gap-2.5">
-          {triggers.map((trigger) => {
-            if (editingId === trigger.id) {
-              return (
-                <TriggerForm
-                  key={trigger.id}
-                  title="Edit Trigger"
-                  name={editName}
-                  setName={setEditName}
-                  time={editTime}
-                  setTime={setEditTime}
-                  days={editDays}
-                  setDays={setEditDays}
-                  allDays={ALL_DAYS}
-                  onSave={() => handleSaveEdit(trigger.id)}
-                  onCancel={() => setEditingId(null)}
-                  isDark={isDark}
-                  submitLabel="Save Changes"
-                />
-              );
-            }
-
+        {/* List of active triggers organized by time of day */}
+        <div className="flex flex-col gap-3">
+          {organizedGroups.map((group) => {
+            if (group.triggers.length === 0) return null;
             return (
-              <TriggerItem
-                key={trigger.id}
-                trigger={trigger}
-                isDark={isDark}
-                onToggle={handleToggle}
-                onStartEdit={handleStartEdit}
-                onDelete={handleDelete}
-              />
+              <div key={group.id} className="flex flex-col gap-2">
+                <div className={`flex items-center justify-between px-1 border-b pb-1.5 ${
+                  isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'
+                }`}>
+                  <span className={`text-[10px] font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 ${
+                    isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
+                  }`}>
+                    <span>{group.icon}</span>
+                    <span>{group.label}</span>
+                    <span className="font-normal opacity-70">({group.range})</span>
+                  </span>
+                  <span className={`text-[9px] font-mono font-semibold px-2 py-0.5 rounded-full ${
+                    isDark ? 'bg-[#1F1F24] text-[#98989D]' : 'bg-[#E5E5EA] text-[#6C6C70]'
+                  }`}>
+                    {group.triggers.length} {group.triggers.length === 1 ? 'alert' : 'alerts'}
+                  </span>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  {group.triggers.map((trigger) => {
+                    if (editingId === trigger.id) {
+                      return (
+                        <TriggerForm
+                          key={trigger.id}
+                          title="Edit Trigger"
+                          name={editName}
+                          setName={setEditName}
+                          time={editTime}
+                          setTime={setEditTime}
+                          days={editDays}
+                          setDays={setEditDays}
+                          allDays={ALL_DAYS}
+                          onSave={() => handleSaveEdit(trigger.id)}
+                          onCancel={() => setEditingId(null)}
+                          isDark={isDark}
+                          submitLabel="Save Changes"
+                        />
+                      );
+                    }
+
+                    return (
+                      <TriggerItem
+                        key={trigger.id}
+                        trigger={trigger}
+                        isDark={isDark}
+                        onToggle={handleToggle}
+                        onStartEdit={handleStartEdit}
+                        onDelete={handleDelete}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
             );
           })}
 
