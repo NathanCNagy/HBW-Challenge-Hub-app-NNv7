@@ -100,9 +100,16 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
             : 'bg-white text-[#1C1C1E] shadow-lg border-2 border-[#0080FF]'
         }`}
       >
-        <div className={`absolute top-0 right-0 w-32 h-32 rounded-full translate-x-12 -translate-y-12 pointer-events-none ${
-          isDark ? 'bg-[#0080FF]/5' : 'bg-[#0080FF]/10'
-        }`} />
+        {/* Ambient top-right gradient design (replaces hard circle outline) */}
+        <div 
+          className="absolute top-0 right-0 w-56 h-56 pointer-events-none"
+          style={{
+            background: isDark
+              ? 'radial-gradient(circle at 100% 0%, rgba(0, 128, 255, 0.25) 0%, rgba(0, 128, 255, 0.08) 40%, rgba(0, 128, 255, 0.01) 65%, transparent 75%)'
+              : 'radial-gradient(circle at 100% 0%, rgba(0, 128, 255, 0.18) 0%, rgba(0, 128, 255, 0.06) 45%, rgba(0, 128, 255, 0.01) 70%, transparent 80%)'
+          }}
+          aria-hidden="true"
+        />
 
         {/* Card Header: Centered & Space-Optimized */}
         <div className="flex flex-col items-center text-center gap-3 z-10 w-full">
