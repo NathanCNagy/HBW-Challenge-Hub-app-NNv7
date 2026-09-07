@@ -328,10 +328,23 @@ export default function DashboardSimulation({
       <div className={`px-4 py-3 border-b flex items-center justify-between shadow-xs shrink-0 z-20 transition-colors duration-200 ${
         theme === 'dark' ? 'bg-[#121214] border-[#1F1F24] text-white' : 'bg-white border-[#E5E5EA] text-[#1C1C1E]'
       }`}>
-        <div className="flex items-center gap-2">
+        {/* HBW Hub Logo on Top Left - Tap to navigate to Home tab */}
+        <button
+          type="button"
+          id="hbw-hub-home-btn"
+          onClick={() => {
+            setActiveTab('home');
+            setShowOverflowMenu(false);
+          }}
+          className="flex items-center gap-2 cursor-pointer hover:opacity-85 active:scale-95 transition-all text-left group py-1 px-1 -ml-1 rounded-full"
+          title="Return to Home Tab"
+          aria-label="Return to Home Tab"
+        >
           <HBWLogo size="sm" theme={theme} />
-          <span className="font-mono text-xs text-[#0080FF] font-semibold tracking-tight uppercase">Hub</span>
-        </div>
+          <span className="font-mono text-xs text-[#0080FF] font-semibold tracking-tight uppercase group-hover:underline">
+            Hub
+          </span>
+        </button>
 
         <div className="flex items-center gap-1.5 relative">
           {/* Quick Header Theme Toggle */}

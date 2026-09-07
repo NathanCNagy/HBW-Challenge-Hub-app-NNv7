@@ -30,9 +30,9 @@ interface HomeTabProps {
   setDismissedBubbleAlert: (dismissed: boolean) => void;
   motivationalQuote: string;
   hasConfiguredNotifications: boolean;
-  anchorHabit: string;
-  setAnchorHabit: (anchor: string) => void;
-  onQuickEnableReminders: () => void;
+  anchorHabit?: string;
+  setAnchorHabit?: (anchor: string) => void;
+  onQuickEnableReminders?: () => void;
   onNavigateToTab: (tab: 'progress' | 'profile') => void;
   theme: 'dark' | 'light';
 }
@@ -186,35 +186,18 @@ export default function HomeTab({
             Pair your habit with a daily routine (like morning coffee) to make consistency automatic.
           </p>
 
-          <div className="flex flex-col gap-2 pt-1">
-            <div className="flex flex-col gap-2">
-              <input
-                type="text"
-                value={anchorHabit}
-                onChange={(e) => setAnchorHabit(e.target.value)}
-                placeholder="e.g. pouring morning coffee"
-                className={`w-full px-3 py-2.5 text-xs border rounded-xl outline-none focus:border-[#0080FF] ${
-                  theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24] text-white' : 'bg-[#F5F5F7] border-[#E5E5EA] text-[#1C1C1E]'
-                }`}
-              />
-              <button
-                onClick={onQuickEnableReminders}
-                className="w-full py-2.5 bg-[#0080FF] hover:bg-[#0066CC] text-white text-xs font-semibold rounded-xl transition-all cursor-pointer shadow-xs text-center flex items-center justify-center gap-1.5"
-              >
-                <Bell className="w-3.5 h-3.5" />
-                <span>Enable Reminders</span>
-              </button>
-            </div>
-
-            <button
-              onClick={() => onNavigateToTab('profile')}
-              className={`text-[11px] font-medium underline transition-colors cursor-pointer text-left pt-0.5 ${
-                theme === 'dark' ? 'text-[#0080FF] hover:text-[#3399FF]' : 'text-[#0080FF] hover:text-[#0066CC]'
-              }`}
-            >
-              Customize schedule & cues in Profile &rarr;
-            </button>
-          </div>
+          <button
+            onClick={() => onNavigateToTab('profile')}
+            className={`h-[44px] w-full px-5 rounded-full font-sans font-semibold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs active:scale-[0.99] ${
+              theme === 'dark'
+                ? 'bg-[#0080FF]/15 hover:bg-[#0080FF]/25 text-[#0080FF] border border-[#0080FF]/30'
+                : 'bg-[#0080FF] hover:bg-[#0066CC] text-white'
+            }`}
+          >
+            <Bell className="w-4 h-4 shrink-0" />
+            <span>Set Up Reminders in Profile</span>
+            <ArrowRight className="w-4 h-4 shrink-0" />
+          </button>
         </div>
       ) : (
         <div className={`p-3 border rounded-[14px] flex items-center justify-between shadow-xs transition-colors duration-200 ${
