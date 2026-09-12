@@ -50,22 +50,37 @@ src/
 
 ---
 
-## 🎨 Design Tokens & UI Rules
+## 🎨 Design Tokens & UI Rules (SACROSANCT)
 
-1. **Colors**:
+> [!IMPORTANT]
+> **SACROSANCT BRAND ASSETS & STYLING**:
+> The favicon (`/public/favicon.svg`), typography system, and color palette defined below are **strictly sacrosanct**. They must never be altered, replaced, or overridden in any feature or styling updates.
+
+1. **Favicon (Sacrosanct)**:
+   - File: `/public/favicon.svg` (linked in `index.html` via `<link rel="icon" type="image/svg+xml" href="/favicon.svg" />`).
+   - Visual: Two-tone circular emblem representing Habits for a Better World (`#0080FF` vibrant blue left hemisphere, `#3892FF` light blue right hemisphere). Do NOT replace or modify this asset.
+
+2. **Colors (Sacrosanct Palette)**:
    - Primary Accent: `#0080FF` (Buttons, active tabs, energetic highlights)
+   - Secondary Accent / Sky Blue: `#3892FF` (Logo split tone, brand gradient highlights)
    - Success: `#34C759` (Completions, verified status, PDF exports)
    - Alert / Energy: `#FF9500` (Gamified energy bubbles, notices)
    - Danger: `#FF3B30` (Sign out, destructive actions)
    - Light Mode Canvas: `#F5F5F7` (Background), `#FFFFFF` (Cards), `#E5E5EA` (Borders), `#1C1C1E` (Text)
    - Dark Mode Canvas: `#0A0A0C` (Background), `#121214` (Cards), `#1F1F24` (Borders), `#FFFFFF` (Text)
+   - Muted Labels: `#6C6C70` (Light), `#8E8E93` / `#98989D` (Dark)
 
-2. **Typography**:
-   - Display / Headings: `font-serif` or bold `font-sans` with tight tracking.
-   - Body & Controls: `font-sans` with line height 1.5–1.7.
-   - Metrics & Timers: `font-mono` with uppercase styling.
+3. **Typography (Sacrosanct Fonts)**:
+   - Font Definition (`src/index.css`):
+     - Display / Headings (`font-serif`): `"Playfair Display", Georgia, serif`
+     - Body & Controls (`font-sans`): `"Inter", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif`
+     - Metrics & Timers (`font-mono`): `"JetBrains Mono", ui-monospace, SFMono-Regular, monospace`
+   - Rules:
+     - Headings: `font-serif` with editorial italic emphasis or bold `font-sans` with tight tracking.
+     - Body & Controls: `font-sans` with line height 1.5–1.7.
+     - Metrics & Timers: `font-mono` with uppercase styling.
 
-3. **Interactivity & Craft**:
+4. **Interactivity & Craft**:
    - Always provide accessible touch targets (≥44px on interactive controls).
    - Use `motion/react` for smooth view entries and state transitions.
    - Keep button labels on a single line (`whitespace-nowrap`).

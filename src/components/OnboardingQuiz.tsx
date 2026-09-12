@@ -186,7 +186,7 @@ export default function OnboardingQuiz({ answers, setAnswers, onSubmit, isLoadin
               <h2 className={`text-2xl font-serif font-normal tracking-tight sm:text-3xl ${
                 isDark ? 'text-white' : 'text-[#1C1C1E]'
               }`}>
-                How do you like to make an <i className="italic font-serif">impact?</i>
+                Make an <i className="italic font-serif">Impact</i>
               </h2>
               <p className={`text-sm font-sans leading-relaxed ${
                 isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'

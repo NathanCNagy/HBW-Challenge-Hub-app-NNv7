@@ -186,7 +186,7 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
             isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
           }`}>
             <Sliders className="w-3.5 h-3.5 text-[#0080FF]" />
-            <span>Customize your schedule</span>
+            <span>Adapt plan to work for you</span>
           </div>
 
           {/* Accordion Header / Trigger Button */}
