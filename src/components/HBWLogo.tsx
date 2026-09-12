@@ -1,43 +1,56 @@
 import React from 'react';
 
-interface HBWLogoProps {
+export interface HBWLogoProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   theme?: 'dark' | 'light';
+  ariaLabel?: string;
 }
 
-export default function HBWLogo({ className = '', size = 'md', theme = 'light' }: HBWLogoProps) {
-  const sizeClasses = {
-    sm: { icon: 'w-4 h-4', text: 'text-sm' },
-    md: { icon: 'w-5 h-5', text: 'text-base' },
-    lg: { icon: 'w-7 h-7', text: 'text-xl' }
-  }[size];
+export default function HBWLogo({ 
+  className = '', 
+  size = 'md', 
+  theme = 'light',
+  ariaLabel = 'Habits for a Better World'
+}: HBWLogoProps) {
+  const sizeClasses: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
+    xs: 'h-6',
+    sm: 'h-8',
+    md: 'h-10',
+    lg: 'h-14',
+    xl: 'h-20',
+  };
 
-  const textColor = theme === 'light' ? 'text-[#1C1C1E]' : 'text-white';
+  const primaryFill = theme === 'dark' ? '#FFFFFF' : '#1C1C1E';
+  const accentFill = '#0080FF';
 
   return (
-    <div className={`flex items-center gap-2 select-none ${className}`}>
-      {/* Circle divided down the middle */}
-      <svg 
-        className={`${sizeClasses.icon} shrink-0`} 
-        viewBox="0 0 24 24" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
+    <svg 
+      className={`shrink-0 w-auto select-none ${sizeClasses[size]} ${className}`} 
+      viewBox="0 0 160 100" 
+      fill="none" 
+      xmlns="http://www.w3.org/2000/svg"
+      role="img"
+      aria-label={ariaLabel}
+    >
+      {/* Left semi-circle: vibrant blue (#0080FF) */}
+      <path 
+        d="M50 0 A50 50 0 0 0 50 100 Z" 
+        fill={accentFill} 
+      />
+
+      {/* 4-tier Stacked Brand Wordmark */}
+      <g 
+        fontFamily="'Inter', 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+        fontWeight="800" 
+        fontSize="21.5" 
+        letterSpacing="0.04em"
       >
-        {/* Left semi-circle: vibrant blue */}
-        <path 
-          d="M12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22V2Z" 
-          fill="#0080FF" 
-        />
-        {/* Right semi-circle: light blue */}
-        <path 
-          d="M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22V2Z" 
-          fill="#3892FF" 
-        />
-      </svg>
-      <span className={`font-sans font-extrabold tracking-tight ${sizeClasses.text} ${textColor}`}>
-        HBW
-      </span>
-    </div>
+        <text x="59" y="22" fill={primaryFill}>HABITS</text>
+        <text x="59" y="47.5" fill={primaryFill}>FOR A</text>
+        <text x="59" y="73" fill={accentFill}>BETTER</text>
+        <text x="59" y="98" fill={primaryFill}>WORLD</text>
+      </g>
+    </svg>
   );
 }

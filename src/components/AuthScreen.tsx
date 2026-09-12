@@ -244,7 +244,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
       {/* Top Header / Navigation Bar */}
       <div className="flex flex-col items-center text-center pt-1 z-10 shrink-0">
         {step !== 'welcome' ? (
-          <div className="w-full flex items-center justify-between mb-3">
+          <div className="w-full flex items-center justify-between mb-4">
             <button
               type="button"
               onClick={() => {
@@ -264,11 +264,11 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
               <ArrowLeft className="w-3.5 h-3.5" />
               <span>Back</span>
             </button>
-            <HBWLogo size="sm" theme={isDark ? 'dark' : 'light'} />
-            <div className="w-14" /> {/* Spacer for visual balance */}
+            <HBWLogo size="sm" className="h-9" theme={isDark ? 'dark' : 'light'} />
+            <div className="w-16" /> {/* Spacer for visual balance */}
           </div>
         ) : (
-          <HBWLogo size="lg" className="mb-2" theme={isDark ? 'dark' : 'light'} />
+          <HBWLogo size="xl" className="h-16 mb-5" theme={isDark ? 'dark' : 'light'} />
         )}
 
         <h2 className={`font-serif text-2xl font-normal tracking-tight ${

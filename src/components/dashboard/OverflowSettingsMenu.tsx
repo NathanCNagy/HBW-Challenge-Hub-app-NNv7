@@ -11,8 +11,6 @@ import {
   Moon, 
   User, 
   LogOut, 
-  Download,
-  Camera,
   Globe
 } from 'lucide-react';
 import { QuizAnswers } from '../../types';
@@ -28,7 +26,7 @@ interface OverflowSettingsMenuProps {
   onUpdateAnswers?: (newAnswers: QuizAnswers) => void;
   onSignOut?: () => void;
   onOpenAuth?: () => void;
-  onDownloadPDF: () => void;
+  onDownloadPDF?: () => void;
   onOpenScreenshots?: () => void;
 }
 
@@ -45,7 +43,7 @@ export default function OverflowSettingsMenu({
   onDownloadPDF,
   onOpenScreenshots
 }: OverflowSettingsMenuProps) {
-  const { unitSystem, setUnitSystem, isUS } = useHabit();
+  const { unitSystem, setUnitSystem } = useHabit();
   const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
   const [editAge, setEditAge] = useState<string>(answers.age);
   const [editGender, setEditGender] = useState<string>(answers.gender);
@@ -106,112 +104,6 @@ export default function OverflowSettingsMenu({
               >
                 <X className="w-4 h-4" />
               </button>
-            </div>
-
-            {/* Appearance / Theme Toggle */}
-            <div className={`p-3 border rounded-[16px] flex flex-col gap-2 ${
-              theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  {theme === 'dark' ? (
-                    <Moon className="w-3.5 h-3.5 text-[#0080FF]" />
-                  ) : (
-                    <Sun className="w-3.5 h-3.5 text-amber-500" />
-                  )}
-                  <span className="text-xs font-bold font-sans">Appearance</span>
-                </div>
-                <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2 py-0.5 rounded-full">
-                  {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                </span>
-              </div>
-
-              <p className={`text-[11px] font-sans leading-normal ${
-                theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
-              }`}>
-                Choose your preferred theme style for everyday use.
-              </p>
-
-              <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 mt-0.5 ${
-                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-              }`}>
-                <button
-                  type="button"
-                  id="theme-toggle-light-btn"
-                  onClick={() => onToggleTheme('light')}
-                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    theme === 'light'
-                      ? 'bg-[#0080FF] text-white shadow-xs'
-                      : theme === 'dark'
-                        ? 'text-[#98989D] hover:text-white'
-                        : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-                  }`}
-                >
-                  <Sun className="w-3.5 h-3.5" />
-                  <span>Light</span>
-                </button>
-
-                <button
-                  type="button"
-                  id="theme-toggle-dark-btn"
-                  onClick={() => onToggleTheme('dark')}
-                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    theme === 'dark'
-                      ? 'bg-[#0080FF] text-white shadow-xs'
-                      : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-                  }`}
-                >
-                  <Moon className="w-3.5 h-3.5" />
-                  <span>Dark</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Units & Measures Section */}
-            <div className={`p-3 border rounded-[16px] flex flex-col gap-2 ${
-              theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-            }`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Globe className="w-3.5 h-3.5 text-[#0080FF]" />
-                  <span className="text-xs font-bold font-sans">Units & Measures</span>
-                </div>
-                <span className="text-[10px] font-mono text-[#0080FF] font-semibold">
-                  {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}
-                </span>
-              </div>
-
-              <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 mt-0.5 ${
-                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-              }`}>
-                <button
-                  type="button"
-                  id="units-toggle-imperial-btn"
-                  onClick={() => setUnitSystem('imperial')}
-                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    unitSystem === 'imperial'
-                      ? 'bg-[#0080FF] text-white shadow-xs'
-                      : theme === 'dark'
-                        ? 'text-[#98989D] hover:text-white'
-                        : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-                  }`}
-                >
-                  <span>US (mi)</span>
-                </button>
-
-                <button
-                  type="button"
-                  id="units-toggle-metric-btn"
-                  onClick={() => setUnitSystem('metric')}
-                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-                    unitSystem === 'metric'
-                      ? 'bg-[#0080FF] text-white shadow-xs'
-                      : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-                  }`}
-                >
-                  <span>Metric (km)</span>
-                </button>
-              </div>
             </div>
 
             {/* Profile Section */}
@@ -351,55 +243,110 @@ export default function OverflowSettingsMenu({
               )}
             </div>
 
-            {/* Quick Actions List */}
-            <div className="flex flex-col gap-2">
-              <span className={`text-[9px] font-mono font-bold uppercase tracking-widest px-1 ${
+            {/* Appearance / Theme Toggle */}
+            <div className={`p-3 border rounded-[16px] flex flex-col gap-2 ${
+              theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  {theme === 'dark' ? (
+                    <Moon className="w-3.5 h-3.5 text-[#0080FF]" />
+                  ) : (
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  )}
+                  <span className="text-xs font-bold font-sans">Appearance</span>
+                </div>
+                <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2 py-0.5 rounded-full">
+                  {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                </span>
+              </div>
+
+              <p className={`text-[11px] font-sans leading-normal ${
                 theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
               }`}>
-                ACTIONS
-              </span>
+                Choose your preferred theme style for everyday use.
+              </p>
 
-              {onOpenScreenshots && (
+              <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 mt-0.5 ${
+                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+              }`}>
                 <button
-                  onClick={() => {
-                    onOpenScreenshots();
-                    onClose();
-                  }}
-                  className={`w-full p-2.5 border rounded-[14px] text-left transition-all flex items-center justify-between group cursor-pointer ${
-                    theme === 'dark'
-                      ? 'bg-[#0A0A0C] hover:bg-[#1A1A1E] border-[#1F1F24] text-white'
-                      : 'bg-[#F5F5F7] hover:bg-[#E5E5EA] border-[#E5E5EA] text-[#1C1C1E]'
+                  type="button"
+                  id="theme-toggle-light-btn"
+                  onClick={() => onToggleTheme('light')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    theme === 'light'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : theme === 'dark'
+                        ? 'text-[#98989D] hover:text-white'
+                        : 'text-[#6C6C70] hover:text-[#1C1C1E]'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
-                    <Camera className="w-4 h-4 text-[#0080FF]" />
-                    <span className="text-xs font-semibold">Screenshots & PNGs</span>
-                  </div>
-                  <span className="text-[10px] bg-[#0080FF]/10 text-[#0080FF] font-bold px-2 py-0.5 rounded-full font-mono">
-                    PNG
-                  </span>
+                  <Sun className="w-3.5 h-3.5" />
+                  <span>Light</span>
                 </button>
-              )}
 
-              <button
-                onClick={() => {
-                  onDownloadPDF();
-                  onClose();
-                }}
-                className={`w-full p-2.5 border rounded-[14px] text-left transition-all flex items-center justify-between group cursor-pointer ${
-                  theme === 'dark'
-                    ? 'bg-[#0A0A0C] hover:bg-[#1A1A1E] border-[#1F1F24] text-white'
-                    : 'bg-[#F5F5F7] hover:bg-[#E5E5EA] border-[#E5E5EA] text-[#1C1C1E]'
-                }`}
-              >
-                <div className="flex items-center gap-2">
-                  <Download className="w-4 h-4 text-[#34C759]" />
-                  <span className="text-xs font-semibold">Download PDF Plan</span>
+                <button
+                  type="button"
+                  id="theme-toggle-dark-btn"
+                  onClick={() => onToggleTheme('dark')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5" />
+                  <span>Dark</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Units & Measures Section */}
+            <div className={`p-3 border rounded-[16px] flex flex-col gap-2 ${
+              theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Globe className="w-3.5 h-3.5 text-[#0080FF]" />
+                  <span className="text-xs font-bold font-sans">Units & Measures</span>
                 </div>
-                <span className="text-[10px] bg-[#34C759]/10 text-[#34C759] font-bold px-2 py-0.5 rounded-full font-mono">
-                  PDF
+                <span className="text-[10px] font-mono text-[#0080FF] font-semibold">
+                  {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}
                 </span>
-              </button>
+              </div>
+
+              <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 mt-0.5 ${
+                theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+              }`}>
+                <button
+                  type="button"
+                  id="units-toggle-imperial-btn"
+                  onClick={() => setUnitSystem('imperial')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    unitSystem === 'imperial'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : theme === 'dark'
+                        ? 'text-[#98989D] hover:text-white'
+                        : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+                  }`}
+                >
+                  <span>US (mi)</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="units-toggle-metric-btn"
+                  onClick={() => setUnitSystem('metric')}
+                  className={`py-1.5 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    unitSystem === 'metric'
+                      ? 'bg-[#0080FF] text-white shadow-xs'
+                      : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+                  }`}
+                >
+                  <span>Metric (km)</span>
+                </button>
+              </div>
             </div>
           </motion.div>
         </>

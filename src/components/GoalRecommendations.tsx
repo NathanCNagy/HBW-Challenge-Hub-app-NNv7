@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Goal, QuizAnswers, ImplementationOption } from '../types';
-import { RefreshCw, Trophy, Sparkles, ArrowRight, Zap, CheckCircle2, Sliders, Info, ShieldCheck, ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react';
+import { RefreshCw, Trophy, Sparkles, ArrowRight, Zap, CheckCircle2, Sliders, Gauge, Info, ShieldCheck, ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import HBWLogo from './HBWLogo';
 import { useHabit } from '../context/HabitContext';
@@ -9,18 +9,17 @@ import { formatImpactMetric } from '../utils/units';
 interface GoalRecommendationsProps {
   answers: QuizAnswers;
   topGoal: Goal;
-  alternatives: Goal[];
+  alternatives?: Goal[];
   onCommit: (selectedGoal: Goal) => void;
   onReset: () => void;
   hasAI: boolean;
   theme?: 'dark' | 'light';
 }
 
-export default function GoalRecommendations({ answers, topGoal, alternatives, onCommit, onReset, hasAI, theme = 'light' }: GoalRecommendationsProps) {
+export default function GoalRecommendations({ answers, topGoal, onCommit, onReset, hasAI, theme = 'light' }: GoalRecommendationsProps) {
   const { unitSystem } = useHabit();
   // Active goal selected among the pillars
-  const [activeGoal, setActiveGoal] = useState<Goal>(topGoal);
-  const [restList, setRestList] = useState<Goal[]>(alternatives);
+  const [activeGoal] = useState<Goal>(topGoal);
   const [isScheduleExpanded, setIsScheduleExpanded] = useState<boolean>(false);
   const isDark = theme === 'dark';
 
@@ -28,16 +27,6 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
   const [selectedOption, setSelectedOption] = useState<ImplementationOption>(
     activeGoal.selectedOption || activeGoal.implementationOptions[0]
   );
-
-  // When swapping active pillar goal
-  const swapToActive = (selectedPillarGoal: Goal) => {
-    const prevActive = activeGoal;
-    setActiveGoal(selectedPillarGoal);
-    const defaultOpt = selectedPillarGoal.implementationOptions[0];
-    setSelectedOption(defaultOpt);
-    const updatedAlts = restList.map((item) => (item.id === selectedPillarGoal.id ? prevActive : item));
-    setRestList(updatedAlts);
-  };
 
   const handleOptionChange = (option: ImplementationOption) => {
     setSelectedOption(option);
@@ -208,7 +197,7 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
               <div className={`p-2 rounded-[10px] shrink-0 mt-0.5 ${
                 isDark ? 'bg-[#0080FF]/15 text-[#0080FF]' : 'bg-[#E5F1FF] text-[#0066CC]'
               }`}>
-                <Sliders className="w-4 h-4" />
+                <Gauge className="w-4 h-4" />
               </div>
               <div className="space-y-0.5 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
@@ -328,16 +317,17 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
         <div className={`space-y-2.5 z-10 border-t pt-4 ${
           isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'
         }`}>
-          <div className="flex items-center justify-between min-w-0">
+          <div className="flex items-center gap-2 min-w-0">
             <div className="flex items-center gap-1.5 min-w-0">
               <Zap className={`w-4 h-4 shrink-0 ${isDark ? 'text-amber-400 fill-amber-400' : 'text-amber-600 fill-amber-600'}`} />
-              <h4 className={`text-xs font-mono font-bold uppercase tracking-wider truncate ${
+              <h4 className={`text-sm font-mono font-bold uppercase tracking-wider ${
                 isDark ? 'text-amber-400' : 'text-amber-700'
               }`}>
-                Projected 3-Month Win-Win Impact
+                3-MONTH IMPACT
               </h4>
             </div>
-            <span className={`text-[10px] font-mono shrink-0 pl-1 ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
+            <span className={`text-xs ${isDark ? 'text-[#48484A]' : 'text-[#AEAEB2]'}`}>•</span>
+            <span className={`text-xs font-mono font-medium ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
               Pace: {Math.round(selectedOption.impactMultiplier * 100)}%
             </span>
           </div>
@@ -421,57 +411,8 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
         </div>
       </motion.div>
 
-      {/* Alternative Pillar Selections */}
-      <div className="space-y-3">
-        <div>
-          <h4 className={`text-xs font-mono font-bold tracking-widest uppercase ${
-            isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
-          }`}>
-            Explore Other Focus Areas
-          </h4>
-          <p className={`text-xs ${isDark ? 'text-[#636366]' : 'text-[#8E8E93]'}`}>
-            Want to start with something else? Tap below to switch pillars.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 gap-2.5">
-          {restList.map((alt) => (
-            <button
-              key={alt.id}
-              id={`alt-elevate-btn-${alt.id}`}
-              onClick={() => swapToActive(alt)}
-              className={`p-3.5 rounded-[16px] text-left transition-all flex items-center justify-between gap-3 group cursor-pointer border ${
-                isDark
-                  ? 'bg-[#121214] hover:bg-[#121214]/80 border-[#1F1F24] hover:border-[#0080FF]'
-                  : 'bg-white hover:bg-[#F9F9FB] border-[#E5E5EA] hover:border-[#0080FF] shadow-2xs'
-              }`}
-            >
-              <div className="space-y-0.5 min-w-0 flex-1">
-                <span className={`text-[10px] font-mono font-bold uppercase block ${
-                  isDark ? 'text-[#0080FF]' : 'text-[#0066CC]'
-                }`}>
-                  {alt.category}
-                </span>
-                <h5 className={`text-sm font-sans font-bold leading-snug truncate ${
-                  isDark ? 'text-white' : 'text-[#1C1C1E]'
-                }`}>
-                  {alt.title}
-                </h5>
-              </div>
-              <span className={`text-[11px] font-sans font-semibold transition-colors border px-3.5 h-8 rounded-full shrink-0 inline-flex items-center justify-center text-center leading-none whitespace-nowrap ${
-                isDark
-                  ? 'text-[#98989D] group-hover:text-white border-[#1F1F24] bg-[#0A0A0C]'
-                  : 'text-[#6C6C70] group-hover:text-[#1C1C1E] border-[#E5E5EA] bg-[#F2F2F7]'
-              }`}>
-                Switch
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Redo Onboarding */}
-      <div className="flex justify-center pt-1 shrink-0">
+      {/* Redo Onboarding / Adjust Plan */}
+      <div className="flex justify-center pt-2 shrink-0">
         <button
           id="redo-quiz-btn"
           onClick={onReset}
@@ -482,7 +423,7 @@ export default function GoalRecommendations({ answers, topGoal, alternatives, on
           }`}
         >
           <RefreshCw className="w-3.5 h-3.5" />
-          <span>Change Profile or Focus</span>
+          <span>Change Profile or Plan</span>
         </button>
       </div>
     </div>
