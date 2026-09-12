@@ -393,24 +393,24 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                   </button>
                 </div>
 
-                {/* Additional Sign-In Options (Facebook, Instagram, Microsoft, TikTok) */}
-                <div className="grid grid-cols-4 gap-2 pt-0.5">
+                {/* Additional Sign-In Options (Facebook, Instagram, Microsoft, TikTok) - subtly smaller */}
+                <div className="grid grid-cols-4 gap-2 pt-0.5 max-w-[270px] mx-auto w-full">
                   {/* Facebook */}
                   <button
                     type="button"
                     title="Facebook"
                     onClick={() => handleSocialSignIn('facebook')}
                     disabled={!!activeSocialLoading}
-                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                    className={`h-[36px] rounded-[10px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
                       isDark
                         ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#1877F2]/60'
                         : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#1877F2]/60'
                     }`}
                   >
                     {activeSocialLoading === 'facebook' ? (
-                      <span className="w-4 h-4 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3.5 h-3.5 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
+                      <svg className="w-3.5 h-3.5 fill-[#1877F2]" viewBox="0 0 24 24">
                         <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                       </svg>
                     )}
@@ -422,16 +422,16 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                     title="Instagram"
                     onClick={() => handleSocialSignIn('instagram')}
                     disabled={!!activeSocialLoading}
-                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                    className={`h-[36px] rounded-[10px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
                       isDark
                         ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#E1306C]/60'
                         : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#E1306C]/60'
                     }`}
                   >
                     {activeSocialLoading === 'instagram' ? (
-                      <span className="w-4 h-4 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3.5 h-3.5 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
                         <defs>
                           <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
                             <stop offset="0%" stopColor="#f09433"/>
@@ -454,16 +454,16 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                     title="Microsoft"
                     onClick={() => handleSocialSignIn('microsoft')}
                     disabled={!!activeSocialLoading}
-                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                    className={`h-[36px] rounded-[10px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
                       isDark
                         ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#00A4EF]/60'
                         : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#00A4EF]/60'
                     }`}
                   >
                     {activeSocialLoading === 'microsoft' ? (
-                      <span className="w-4 h-4 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3.5 h-3.5 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <svg className="w-3.5 h-3.5" viewBox="0 0 21 21">
+                      <svg className="w-3 h-3" viewBox="0 0 21 21">
                         <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
                         <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
                         <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
@@ -478,16 +478,16 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                     title="TikTok"
                     onClick={() => handleSocialSignIn('tiktok')}
                     disabled={!!activeSocialLoading}
-                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                    className={`h-[36px] rounded-[10px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
                       isDark
                         ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-white/60'
                         : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-black/60'
                     }`}
                   >
                     {activeSocialLoading === 'tiktok' ? (
-                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                      <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.45c1.47-1.42 2.27-3.4 2.22-5.46V8.58c1.37.98 3.03 1.54 4.75 1.59V6.72c-.41-.01-.83-.02-1.24-.03z" />
                       </svg>
                     )}
