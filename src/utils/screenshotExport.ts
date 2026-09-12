@@ -91,12 +91,22 @@ export const APP_SCREENSHOTS_CATALOG: AppScreenshotItem[] = [
 ];
 
 /**
- * Downloads a DOM element as a high-resolution PNG image
+ * Downloads a DOM element as a high-resolution PNG image, extending to capture the full frame
  */
 export async function downloadElementAsPNG(element: HTMLElement, fileName: string): Promise<void> {
+  const scrollHeight = Math.max(element.scrollHeight, element.offsetHeight);
+  const scrollWidth = Math.max(element.scrollWidth, element.offsetWidth);
+
   const dataUrl = await toPng(element, {
     pixelRatio: 2,
     cacheBust: true,
+    width: scrollWidth,
+    height: scrollHeight,
+    style: {
+      height: `${scrollHeight}px`,
+      maxHeight: 'none',
+      overflow: 'visible',
+    }
   });
 
   const link = document.createElement('a');
@@ -121,9 +131,20 @@ export async function downloadAllScreenshotsZip(
     const item = screenElements[i];
     if (onProgress) onProgress(i + 1, screenElements.length);
 
-    const dataUrl = await toPng(item.element, {
+    const el = item.element;
+    const scrollHeight = Math.max(el.scrollHeight, el.offsetHeight);
+    const scrollWidth = Math.max(el.scrollWidth, el.offsetWidth);
+
+    const dataUrl = await toPng(el, {
       pixelRatio: 2,
       cacheBust: true,
+      width: scrollWidth,
+      height: scrollHeight,
+      style: {
+        height: `${scrollHeight}px`,
+        maxHeight: 'none',
+        overflow: 'visible',
+      }
     });
 
     const base64Data = dataUrl.replace(/^data:image\/(png|jpg|jpeg);base64,/, '');

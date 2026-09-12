@@ -14,7 +14,8 @@ import {
   Sun, 
   Moon,
   Smartphone,
-  CheckCircle2
+  CheckCircle2,
+  Maximize2
 } from 'lucide-react';
 import { REAL_APP_SCREENS, AppScreenDefinition } from '../utils/screenCatalog';
 import { downloadElementAsPNG, downloadAllScreenshotsZip } from '../utils/screenshotExport';
@@ -34,6 +35,7 @@ export default function ScreenshotGalleryModal({
 }: ScreenshotGalleryModalProps) {
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const [previewTheme, setPreviewTheme] = useState<'dark' | 'light'>(defaultTheme);
+  const [frameMode, setFrameMode] = useState<'extended' | 'viewport'>('extended');
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [isZipping, setIsZipping] = useState<boolean>(false);
   const [zipProgress, setZipProgress] = useState<{ current: number; total: number } | null>(null);
@@ -132,6 +134,32 @@ export default function ScreenshotGalleryModal({
 
             {/* Global Controls */}
             <div className="flex items-center gap-2.5 flex-wrap self-end sm:self-center">
+              {/* Phone Frame Mode Toggle (Extended Full Screen vs Fixed Viewport) */}
+              <div className="flex items-center bg-[#001428] p-1 rounded-xl border border-[#002B54] text-xs">
+                <button
+                  type="button"
+                  onClick={() => setFrameMode('extended')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-sans font-semibold transition-all cursor-pointer ${
+                    frameMode === 'extended' ? 'bg-[#0285FF] text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Extend phone frame to show entire screen in exported PNG"
+                >
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>Extended Frame</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFrameMode('viewport')}
+                  className={`flex items-center gap-1.5 px-3 py-1 rounded-lg font-sans font-semibold transition-all cursor-pointer ${
+                    frameMode === 'viewport' ? 'bg-[#0285FF] text-white shadow-xs' : 'text-slate-400 hover:text-white'
+                  }`}
+                  title="Standard fixed 640px phone viewport"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Fixed (640px)</span>
+                </button>
+              </div>
+
               {/* Format selection */}
               <div className="flex items-center bg-[#001428] p-1 rounded-xl border border-[#002B54] text-xs">
                 <button
@@ -171,7 +199,7 @@ export default function ScreenshotGalleryModal({
                 <FolderArchive className="w-4 h-4" />
                 {isZipping 
                   ? `Archiving (${zipProgress?.current}/${zipProgress?.total})...`
-                  : `Download All 10 Screens (${selectedFormat})`
+                  : `Download All ${REAL_APP_SCREENS.length} Screens (${selectedFormat})`
                 }
               </button>
 
@@ -226,6 +254,9 @@ export default function ScreenshotGalleryModal({
                         <span className="text-[10px] font-mono text-slate-400">
                           #{idx + 1}
                         </span>
+                        <span className="text-[9px] font-mono font-semibold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                          {frameMode === 'extended' ? 'Extended Full Screen' : 'Fixed 640px'}
+                        </span>
                       </div>
                       <h3 className="text-sm font-serif font-bold text-white group-hover:text-[#0285FF] transition-colors">
                         {screen.title}
@@ -251,36 +282,46 @@ export default function ScreenshotGalleryModal({
                   </div>
 
                   {/* Authentic Smartphone Viewport Frame (Captured by html-to-image) */}
-                  <div className="relative w-full rounded-2xl overflow-hidden border border-[#002B54]/70 bg-black flex justify-center items-center p-3 shadow-inner">
+                  <div className="relative w-full rounded-2xl border border-[#002B54]/70 bg-black/80 flex justify-center p-3 shadow-inner max-h-[740px] overflow-y-auto custom-scrollbar">
                     {/* The exact phone viewport targeted by ref for crisp 2x export */}
                     <div
                       ref={el => { screenRefs.current[screen.id] = el; }}
-                      className={`w-[360px] h-[640px] rounded-[36px] p-3 flex flex-col border transition-colors duration-200 overflow-hidden shadow-2xl relative select-none ${
+                      className={`w-[360px] sm:w-[375px] rounded-[44px] p-3.5 flex flex-col border-[3px] transition-colors duration-200 shadow-2xl relative select-none shrink-0 ${
+                        frameMode === 'extended' ? 'min-h-[640px] h-auto overflow-visible' : 'h-[640px] overflow-hidden'
+                      } ${
                         previewTheme === 'dark'
-                          ? 'bg-[#0A0A0C] border-neutral-800 text-[#F5F5F7]'
+                          ? 'bg-[#0A0A0C] border-[#2C2C2E] text-[#F5F5F7]'
                           : 'bg-[#F5F5F7] border-[#D1D1D6] text-[#1C1C1E]'
                       }`}
                     >
                       {/* Realistic Status Bar & Dynamic Island */}
-                      <div className="w-full flex justify-between items-center px-4 pt-1 pb-2 text-[10px] font-mono font-semibold text-slate-400 shrink-0">
-                        <span>9:41</span>
-                        <div className="w-20 h-4 bg-black rounded-full border border-neutral-800 flex items-center justify-center">
-                          <div className="w-2 h-2 rounded-full bg-[#0080FF]" />
+                      <div className="w-full flex justify-between items-center px-3 pt-1 pb-3 text-[10px] font-mono font-semibold text-slate-400 shrink-0">
+                        <span className="font-bold">9:41</span>
+                        <div className="w-24 h-5 bg-black rounded-full border border-neutral-800 flex items-center justify-between px-2.5 shadow-inner">
+                          <div className="w-2.5 h-2.5 rounded-full bg-[#111] border border-neutral-700 flex items-center justify-center">
+                            <div className="w-1 h-1 rounded-full bg-[#0080FF]/80" />
+                          </div>
+                          <div className="w-2 h-2 rounded-full bg-[#0080FF] animate-pulse" />
                         </div>
-                        <span>5G 100%</span>
+                        <span className="flex items-center gap-1">
+                          <span>5G</span>
+                          <span className="font-bold">100%</span>
+                        </span>
                       </div>
 
-                      {/* Real Live Component Render with scrolling & interaction */}
-                      <div className="flex-1 w-full overflow-y-auto px-1 py-1 scrollbar-none">
+                      {/* Real Live Component Render - Extended Full Screen or Scrollable Viewport */}
+                      <div className={`w-full px-1 py-1 ${
+                        frameMode === 'extended' ? 'h-auto overflow-visible flex flex-col' : 'flex-1 overflow-y-auto scrollbar-none'
+                      }`}>
                         <RealScreenRenderer
                           screenId={screen.id}
                           theme={previewTheme}
                         />
                       </div>
 
-                      {/* Home Indicator Bar */}
-                      <div className="w-full h-3 flex items-center justify-center pt-1 shrink-0">
-                        <div className="w-24 h-1 bg-slate-500/40 rounded-full" />
+                      {/* Home Indicator Bar at bottom of phone */}
+                      <div className="w-full pt-4 pb-1.5 flex items-center justify-center shrink-0">
+                        <div className="w-32 h-1 bg-slate-500/40 rounded-full" />
                       </div>
                     </div>
                   </div>
