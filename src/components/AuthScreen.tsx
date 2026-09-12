@@ -11,9 +11,10 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   KeyRound,
-  Edit2
+  Edit2,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 import { 
   GoogleAuthProvider, 
   FacebookAuthProvider, 
@@ -21,7 +22,9 @@ import {
   signInWithPopup 
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { storage } from '../services/storage';
 import HBWLogo from './HBWLogo';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface AuthScreenProps {
   onLoginSuccess: (displayName: string, email: string) => void;
@@ -32,9 +35,13 @@ interface AuthScreenProps {
 type SocialProvider = 'google' | 'apple' | 'facebook' | 'instagram' | 'microsoft' | 'tiktok';
 
 export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 'light' }: AuthScreenProps) {
-  // Two-step authentication: 'email' first, then 'password'
-  const [step, setStep] = useState<'email' | 'password'>('email');
+  // 3-step authentication flow:
+  // 1. 'welcome': Clean landing hub with "Continue with Email", streamlined social buttons, and guest option.
+  // 2. 'email': Dedicated, focused screen to input email.
+  // 3. 'password': Dedicated screen to input password (and name if sign-up) and complete authentication.
+  const [step, setStep] = useState<'welcome' | 'email' | 'password'>('welcome');
   const [isSignUp, setIsSignUp] = useState(false);
+  const [showMoreSocials, setShowMoreSocials] = useState(false);
   
   // Form fields
   const [email, setEmail] = useState('');
@@ -118,7 +125,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
     }, 600);
   };
 
-  // Step 1: Email Validation & Step Progression
+  // Step 2 (Email submission): Validation & Advance to Step 3 (Password)
   const handleEmailStepSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -137,7 +144,8 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
 
     // Inspect if user exists in local accounts registry
     try {
-      const registeredUsers = JSON.parse(localStorage.getItem('hbw_mock_users') || '{}');
+      const savedUsersStr = storage.getString('hbw_mock_users');
+      const registeredUsers = savedUsersStr ? JSON.parse(savedUsersStr) : {};
       const existing = registeredUsers[trimmedEmail.toLowerCase()];
       if (existing && !isSignUp) {
         // Pre-fill name if available
@@ -149,11 +157,11 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
       console.error(err);
     }
 
-    // Move to step 2 (Password)
+    // Move to step 3 (Password)
     setStep('password');
   };
 
-  // Step 2: Password Authentication & Account Creation
+  // Step 3 (Password submission): Password Authentication & Account Creation
   const handlePasswordStepSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -181,14 +189,15 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
 
     setTimeout(() => {
       try {
-        const registeredUsers = JSON.parse(localStorage.getItem('hbw_mock_users') || '{}');
+        const savedUsersStr = storage.getString('hbw_mock_users');
+        const registeredUsers = savedUsersStr ? JSON.parse(savedUsersStr) : {};
 
         if (isSignUp) {
           registeredUsers[normalizedEmail] = {
             displayName: displayName.trim(),
             password: password,
           };
-          localStorage.setItem('hbw_mock_users', JSON.stringify(registeredUsers));
+          storage.set('hbw_mock_users', JSON.stringify(registeredUsers));
           onLoginSuccess(displayName.trim(), normalizedEmail);
         } else {
           const matchedUser = registeredUsers[normalizedEmail];
@@ -208,7 +217,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
               displayName: derivedName,
               password: password,
             };
-            localStorage.setItem('hbw_mock_users', JSON.stringify(registeredUsers));
+            storage.set('hbw_mock_users', JSON.stringify(registeredUsers));
             onLoginSuccess(derivedName, normalizedEmail);
           }
         }
@@ -235,17 +244,21 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
       <div className="absolute top-[-40px] left-[-40px] w-48 h-48 rounded-full bg-[#0080FF]/10 blur-3xl pointer-events-none" />
       <div className="absolute bottom-[-40px] right-[-40px] w-48 h-48 rounded-full bg-emerald-500/5 blur-3xl pointer-events-none" />
 
-      {/* Top Header / Brand Bar */}
+      {/* Top Header / Navigation Bar */}
       <div className="flex flex-col items-center text-center pt-1 z-10 shrink-0">
-        {step === 'password' ? (
-          <div className="w-full flex items-center justify-between mb-2">
+        {step !== 'welcome' ? (
+          <div className="w-full flex items-center justify-between mb-3">
             <button
               type="button"
               onClick={() => {
-                setStep('email');
+                if (step === 'password') {
+                  setStep('email');
+                } else {
+                  setStep('welcome');
+                }
                 setError(null);
               }}
-              className={`h-9 px-2.5 rounded-full flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-colors border ${
+              className={`h-9 px-3 rounded-full flex items-center gap-1.5 text-xs font-medium cursor-pointer transition-colors border ${
                 isDark 
                   ? 'bg-[#121214] border-[#1F1F24] text-[#98989D] hover:text-white hover:border-[#2C2C30]' 
                   : 'bg-white border-[#E5E5EA] text-[#6C6C70] hover:text-[#1C1C1E] hover:border-[#C7C7CC]'
@@ -255,7 +268,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
               <span>Back</span>
             </button>
             <HBWLogo size="sm" theme={isDark ? 'dark' : 'light'} />
-            <div className="w-14" /> {/* Spacer for balance */}
+            <div className="w-14" /> {/* Spacer for visual balance */}
           </div>
         ) : (
           <HBWLogo size="lg" className="mb-2" theme={isDark ? 'dark' : 'light'} />
@@ -264,39 +277,290 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
         <h2 className={`font-serif text-2xl font-normal tracking-tight ${
           isDark ? 'text-white' : 'text-[#1C1C1E]'
         }`}>
-          {step === 'email' ? (
-            isSignUp ? <>Create your <i className="italic font-serif">account</i></> : <>Welcome <i className="italic font-serif">back</i></>
-          ) : (
+          {step === 'welcome' && (
+            isSignUp ? <>Create your <i className="italic font-serif">account</i></> : <>Welcome to <i className="italic font-serif">Habits</i></>
+          )}
+          {step === 'email' && (
+            isSignUp ? <>What's your <i className="italic font-serif">email</i>?</> : <>Enter your <i className="italic font-serif">email</i></>
+          )}
+          {step === 'password' && (
             isSignUp ? <>Complete your <i className="italic font-serif">profile</i></> : <>Enter your <i className="italic font-serif">password</i></>
           )}
         </h2>
         
-        <p className={`text-[11px] font-mono uppercase tracking-wider mt-1 ${
+        <p className={`text-xs font-sans mt-1.5 max-w-[280px] mx-auto leading-relaxed ${
           isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
         }`}>
-          {step === 'email' 
-            ? (isSignUp ? 'Step 1 of 2: Enter your email' : 'Step 1 of 2: Sign in with email')
-            : (isSignUp ? 'Step 2 of 2: Set your password' : 'Step 2 of 2: Verify credentials')
-          }
+          {step === 'welcome' && (
+            isSignUp 
+              ? 'Start your journey to positive daily change' 
+              : 'Build sustainable habits for a better world'
+          )}
+          {step === 'email' && (
+            isSignUp 
+              ? "We'll use this to set up your account" 
+              : 'Sign in to access your habits and streak'
+          )}
+          {step === 'password' && (
+            isSignUp 
+              ? 'Choose a password to secure your account' 
+              : 'Verify your password to continue'
+          )}
         </p>
       </div>
 
-      {/* Main Flow Content */}
+      {/* Main Flow Content with smooth screen transitions */}
       <div className="flex-grow flex flex-col justify-center my-3 z-10">
         <AnimatePresence mode="wait">
-          {step === 'email' ? (
-            /* ================= STEP 1: EMAIL & SOCIAL OPTIONS ================= */
+          {/* ================= SCREEN 1: WELCOME & SIGN-IN HUB ================= */}
+          {step === 'welcome' && (
+            <motion.div
+              key="step-welcome"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="space-y-4 py-2"
+            >
+              {/* Primary Email Entry Action Button */}
+              <div className="space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setStep('email');
+                    setError(null);
+                  }}
+                  className="w-full h-[50px] bg-[#0080FF] hover:bg-[#0066CC] active:scale-[0.99] font-sans text-sm font-semibold rounded-full text-white transition-all flex items-center justify-between px-5 cursor-pointer shadow-md group"
+                >
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-white/90" />
+                    <span className="whitespace-nowrap">Continue with Email</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-white/80 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              </div>
+
+              {/* Clean Divider */}
+              <div className="flex items-center gap-3 py-1">
+                <div className={`flex-1 h-[1px] ${isDark ? 'bg-[#1F1F24]' : 'bg-[#E5E5EA]'}`} />
+                <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? 'text-[#6C6C70]' : 'text-[#8E8E93]'}`}>
+                  or continue with
+                </span>
+                <div className={`flex-1 h-[1px] ${isDark ? 'bg-[#1F1F24]' : 'bg-[#E5E5EA]'}`} />
+              </div>
+
+              {/* Streamlined Primary Social Logins (Google & Apple side-by-side) */}
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* Google Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleSocialSignIn('google')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[44px] px-3 active:scale-[0.99] border font-sans text-xs font-semibold rounded-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isDark
+                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#2C2C30] hover:border-[#4285F4]/60 text-white'
+                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#4285F4]/60 text-[#1C1C1E]'
+                    }`}
+                  >
+                    {activeSocialLoading === 'google' ? (
+                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
+                        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+                        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+                      </svg>
+                    )}
+                    <span className="whitespace-nowrap">Google</span>
+                  </button>
+
+                  {/* Apple Button */}
+                  <button
+                    type="button"
+                    onClick={() => handleSocialSignIn('apple')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[44px] px-3 active:scale-[0.99] border font-sans text-xs font-semibold rounded-[14px] transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                      isDark
+                        ? 'bg-white hover:bg-[#F2F2F7] border-white text-black'
+                        : 'bg-black hover:bg-[#1C1C1E] border-black text-white'
+                    }`}
+                  >
+                    {activeSocialLoading === 'apple' ? (
+                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4 fill-current shrink-0" viewBox="0 0 170 170">
+                        <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14.01-6.19-9.55-11.06-20.47-14.61-32.78-3.55-12.3-5.33-23.75-5.33-34.34 0-15.01 3.65-27.46 10.96-37.33 7.31-9.87 16.59-14.89 27.84-15.08 5.76 0 12.16 1.63 19.21 4.9 7.05 3.27 11.24 4.94 12.56 5.02 1.32-.08 5.76-1.83 13.33-5.27 7.56-3.43 13.88-4.99 18.96-4.68 14.13.87 25.13 5.99 32.99 15.35-12.63 7.63-18.83 18.06-18.6 31.29.23 10.34 4.13 18.99 11.7 25.96 7.57 6.97 16.63 11.03 27.18 12.18-2.61 7.95-5.83 16.03-9.67 24.25zM119.22 33.09c0-7.31 2.65-14.14 7.95-20.49 5.3-6.35 11.83-10.28 19.59-11.8-1.09 7.42-3.87 14.28-8.34 20.57-4.47 6.29-10.87 10.26-19.2 11.72z" />
+                      </svg>
+                    )}
+                    <span className="whitespace-nowrap">Apple</span>
+                  </button>
+                </div>
+
+                {/* Expandable secondary options toggle */}
+                <div className="text-center pt-0.5">
+                  <button
+                    type="button"
+                    onClick={() => setShowMoreSocials(!showMoreSocials)}
+                    className={`inline-flex items-center gap-1 text-[11px] font-sans font-medium cursor-pointer transition-colors py-1 px-2.5 rounded-full ${
+                      isDark ? 'text-[#8E8E93] hover:text-white hover:bg-[#121214]' : 'text-[#6C6C70] hover:text-[#1C1C1E] hover:bg-black/5'
+                    }`}
+                  >
+                    <span>{showMoreSocials ? 'Fewer options' : 'More sign-in options'}</span>
+                    {showMoreSocials ? (
+                      <ChevronUp className="w-3.5 h-3.5" />
+                    ) : (
+                      <ChevronDown className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+
+                {/* Secondary Providers: Collapsed by default to prevent visual crowding */}
+                <AnimatePresence>
+                  {showMoreSocials && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.18 }}
+                      className="overflow-hidden pt-1"
+                    >
+                      <div className="grid grid-cols-4 gap-2">
+                        {/* Facebook */}
+                        <button
+                          type="button"
+                          title="Facebook"
+                          onClick={() => handleSocialSignIn('facebook')}
+                          disabled={!!activeSocialLoading}
+                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                            isDark
+                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#1877F2]/60'
+                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#1877F2]/60'
+                          }`}
+                        >
+                          {activeSocialLoading === 'facebook' ? (
+                            <span className="w-4 h-4 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
+                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* Instagram */}
+                        <button
+                          type="button"
+                          title="Instagram"
+                          onClick={() => handleSocialSignIn('instagram')}
+                          disabled={!!activeSocialLoading}
+                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                            isDark
+                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#E1306C]/60'
+                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#E1306C]/60'
+                          }`}
+                        >
+                          {activeSocialLoading === 'instagram' ? (
+                            <span className="w-4 h-4 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                              <defs>
+                                <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                                  <stop offset="0%" stopColor="#f09433"/>
+                                  <stop offset="25%" stopColor="#e6683c"/>
+                                  <stop offset="50%" stopColor="#dc2743"/>
+                                  <stop offset="75%" stopColor="#cc2366"/>
+                                  <stop offset="100%" stopColor="#bc1888"/>
+                                </linearGradient>
+                              </defs>
+                              <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="url(#ig-grad)" strokeWidth="2"/>
+                              <circle cx="12" cy="12" r="4.2" stroke="url(#ig-grad)" strokeWidth="2"/>
+                              <circle cx="17.2" cy="6.8" r="1.2" fill="url(#ig-grad)"/>
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* Microsoft */}
+                        <button
+                          type="button"
+                          title="Microsoft"
+                          onClick={() => handleSocialSignIn('microsoft')}
+                          disabled={!!activeSocialLoading}
+                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                            isDark
+                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#00A4EF]/60'
+                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#00A4EF]/60'
+                          }`}
+                        >
+                          {activeSocialLoading === 'microsoft' ? (
+                            <span className="w-4 h-4 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-3.5 h-3.5" viewBox="0 0 21 21">
+                              <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                              <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                              <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                            </svg>
+                          )}
+                        </button>
+
+                        {/* TikTok */}
+                        <button
+                          type="button"
+                          title="TikTok"
+                          onClick={() => handleSocialSignIn('tiktok')}
+                          disabled={!!activeSocialLoading}
+                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                            isDark
+                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-white/60'
+                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-black/60'
+                          }`}
+                        >
+                          {activeSocialLoading === 'tiktok' ? (
+                            <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.45c1.47-1.42 2.27-3.4 2.22-5.46V8.58c1.37.98 3.03 1.54 4.75 1.59V6.72c-.41-.01-.83-.02-1.24-.03z" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Mode Switcher: Log In vs Sign Up Free (Positioned below all login options, above guest mode) */}
+              <div className="text-center pt-2">
+                <p className={`text-xs font-sans ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
+                  {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setError(null);
+                    }}
+                    className="text-[#0080FF] font-semibold hover:underline ml-1 cursor-pointer whitespace-nowrap"
+                  >
+                    {isSignUp ? 'Log In' : 'Sign Up Free'}
+                  </button>
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* ================= SCREEN 2: EMAIL INPUT ================= */}
+          {step === 'email' && (
             <motion.div
               key="step-email"
-              initial={{ opacity: 0, x: -16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="space-y-4 py-2"
             >
-              {/* Email Form */}
-              <form onSubmit={handleEmailStepSubmit} className="space-y-2.5">
-                <div className="space-y-1">
+              <form onSubmit={handleEmailStepSubmit} className="space-y-3.5">
+                <div className="space-y-1.5">
                   <label className={`text-[12px] font-semibold block px-1 ${
                     isDark ? 'text-[#8E8E93]' : 'text-[#6C6C70]'
                   }`}>
@@ -306,11 +570,11 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                     <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8E8E93]" />
                     <input
                       type="email"
-                      placeholder="alex@example.com"
+                      placeholder="name@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       autoFocus
-                      className={`w-full h-[46px] pl-10 pr-4 rounded-[14px] text-sm outline-none transition-all border ${
+                      className={`w-full h-[48px] pl-10 pr-4 rounded-[14px] text-sm outline-none transition-all border ${
                         isDark
                           ? 'bg-[#121214] border-[#1F1F24] text-white placeholder-[#6C6C70] hover:border-[#0080FF]/40 focus:border-[#0080FF]'
                           : 'bg-[#F2F2F7] border-[#E5E5EA] text-[#1C1C1E] placeholder-[#8E8E93] hover:border-[#0080FF]/40 focus:border-[#0080FF]'
@@ -332,18 +596,18 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                   </motion.div>
                 )}
 
-                {/* Step 1 Submit Button */}
+                {/* Continue to Password Button */}
                 <button
                   type="submit"
-                  className="w-full h-[46px] bg-[#0080FF] hover:bg-[#0066CC] active:scale-[0.99] font-sans text-sm font-semibold rounded-full text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                  className="w-full h-[48px] bg-[#0080FF] hover:bg-[#0066CC] active:scale-[0.99] font-sans text-sm font-semibold rounded-full text-white transition-all flex items-center justify-center gap-2 cursor-pointer shadow-md"
                 >
-                  <span className="whitespace-nowrap">Continue with Email</span>
+                  <span className="whitespace-nowrap">Continue</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
               </form>
 
-              {/* Toggle Mode: Login vs Signup */}
-              <div className="text-center py-0.5">
+              {/* Mode Switcher */}
+              <div className="text-center pt-1">
                 <p className={`text-xs font-sans ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
                   {isSignUp ? 'Already have an account?' : "Don't have an account?"}
                   <button
@@ -358,179 +622,21 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                   </button>
                 </p>
               </div>
-
-              {/* Or Divider */}
-              <div className="flex items-center gap-3 my-1">
-                <div className={`flex-1 h-[1px] ${isDark ? 'bg-[#1F1F24]' : 'bg-[#E5E5EA]'}`} />
-                <span className={`text-[10px] font-mono uppercase tracking-wider ${isDark ? 'text-[#6C6C70]' : 'text-[#8E8E93]'}`}>
-                  or continue with
-                </span>
-                <div className={`flex-1 h-[1px] ${isDark ? 'bg-[#1F1F24]' : 'bg-[#E5E5EA]'}`} />
-              </div>
-
-              {/* Prominent Primary Social Sign-In (Google & Apple) */}
-              <div className="space-y-2">
-                {/* Google Sign-In Button */}
-                <button
-                  type="button"
-                  onClick={() => handleSocialSignIn('google')}
-                  disabled={!!activeSocialLoading}
-                  className={`w-full h-[44px] active:scale-[0.99] border font-sans text-xs font-semibold rounded-[14px] transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
-                    isDark
-                      ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#2C2C30] hover:border-[#4285F4]/60 text-white'
-                      : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#4285F4]/60 text-[#1C1C1E]'
-                  }`}
-                >
-                  {activeSocialLoading === 'google' ? (
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
-                      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-                      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-                    </svg>
-                  )}
-                  <span className="whitespace-nowrap">Continue with Google</span>
-                </button>
-
-                {/* Apple Sign-In Button */}
-                <button
-                  type="button"
-                  onClick={() => handleSocialSignIn('apple')}
-                  disabled={!!activeSocialLoading}
-                  className={`w-full h-[44px] active:scale-[0.99] border font-sans text-xs font-semibold rounded-[14px] transition-all flex items-center justify-center gap-2.5 cursor-pointer ${
-                    isDark
-                      ? 'bg-white hover:bg-[#F2F2F7] border-white text-black'
-                      : 'bg-black hover:bg-[#1C1C1E] border-black text-white'
-                  }`}
-                >
-                  {activeSocialLoading === 'apple' ? (
-                    <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 170 170">
-                      <path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.74 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.16-1.9-14.42-6.08-3.7-3.04-7.59-7.71-11.66-14.01-6.19-9.55-11.06-20.47-14.61-32.78-3.55-12.3-5.33-23.75-5.33-34.34 0-15.01 3.65-27.46 10.96-37.33 7.31-9.87 16.59-14.89 27.84-15.08 5.76 0 12.16 1.63 19.21 4.9 7.05 3.27 11.24 4.94 12.56 5.02 1.32-.08 5.76-1.83 13.33-5.27 7.56-3.43 13.88-4.99 18.96-4.68 14.13.87 25.13 5.99 32.99 15.35-12.63 7.63-18.83 18.06-18.6 31.29.23 10.34 4.13 18.99 11.7 25.96 7.57 6.97 16.63 11.03 27.18 12.18-2.61 7.95-5.83 16.03-9.67 24.25zM119.22 33.09c0-7.31 2.65-14.14 7.95-20.49 5.3-6.35 11.83-10.28 19.59-11.8-1.09 7.42-3.87 14.28-8.34 20.57-4.47 6.29-10.87 10.26-19.2 11.72z" />
-                    </svg>
-                  )}
-                  <span className="whitespace-nowrap">Continue with Apple</span>
-                </button>
-              </div>
-
-              {/* Secondary Social Login Row: Facebook, Instagram, Microsoft, GitHub */}
-              <div className="pt-0.5">
-                <div className="grid grid-cols-4 gap-2">
-                  {/* Facebook Button */}
-                  <button
-                    type="button"
-                    title="Continue with Facebook"
-                    onClick={() => handleSocialSignIn('facebook')}
-                    disabled={!!activeSocialLoading}
-                    className={`h-[44px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                      isDark
-                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#1877F2]/60'
-                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#1877F2]/60'
-                    }`}
-                  >
-                    {activeSocialLoading === 'facebook' ? (
-                      <span className="w-4 h-4 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <svg className="w-5 h-5 fill-[#1877F2]" viewBox="0 0 24 24">
-                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                      </svg>
-                    )}
-                  </button>
-
-                  {/* Instagram Button */}
-                  <button
-                    type="button"
-                    title="Continue with Instagram"
-                    onClick={() => handleSocialSignIn('instagram')}
-                    disabled={!!activeSocialLoading}
-                    className={`h-[44px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                      isDark
-                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#E1306C]/60'
-                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#E1306C]/60'
-                    }`}
-                  >
-                    {activeSocialLoading === 'instagram' ? (
-                      <span className="w-4 h-4 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
-                        <defs>
-                          <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#f09433"/>
-                            <stop offset="25%" stopColor="#e6683c"/>
-                            <stop offset="50%" stopColor="#dc2743"/>
-                            <stop offset="75%" stopColor="#cc2366"/>
-                            <stop offset="100%" stopColor="#bc1888"/>
-                          </linearGradient>
-                        </defs>
-                        <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="url(#ig-grad)" strokeWidth="2"/>
-                        <circle cx="12" cy="12" r="4.2" stroke="url(#ig-grad)" strokeWidth="2"/>
-                        <circle cx="17.2" cy="6.8" r="1.2" fill="url(#ig-grad)"/>
-                      </svg>
-                    )}
-                  </button>
-
-                  {/* Microsoft Button */}
-                  <button
-                    type="button"
-                    title="Continue with Microsoft"
-                    onClick={() => handleSocialSignIn('microsoft')}
-                    disabled={!!activeSocialLoading}
-                    className={`h-[44px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                      isDark
-                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#00A4EF]/60'
-                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#00A4EF]/60'
-                    }`}
-                  >
-                    {activeSocialLoading === 'microsoft' ? (
-                      <span className="w-4 h-4 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 21 21">
-                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
-                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
-                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
-                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
-                      </svg>
-                    )}
-                  </button>
-
-                  {/* TikTok Button */}
-                  <button
-                    type="button"
-                    title="Continue with TikTok"
-                    onClick={() => handleSocialSignIn('tiktok')}
-                    disabled={!!activeSocialLoading}
-                    className={`h-[44px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                      isDark
-                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-white/60'
-                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-black/60'
-                    }`}
-                  >
-                    {activeSocialLoading === 'tiktok' ? (
-                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.45c1.47-1.42 2.27-3.4 2.22-5.46V8.58c1.37.98 3.03 1.54 4.75 1.59V6.72c-.41-.01-.83-.02-1.24-.03z" />
-                      </svg>
-                    )}
-                  </button>
-                </div>
-              </div>
             </motion.div>
-          ) : (
-            /* ================= STEP 2: PASSWORD & PROFILE CONFIRMATION ================= */
+          )}
+
+          {/* ================= SCREEN 3: PASSWORD & CREDENTIALS ================= */}
+          {step === 'password' && (
             <motion.div
               key="step-password"
-              initial={{ opacity: 0, x: 16 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 16 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-3"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25, ease: "easeInOut" }}
+              className="space-y-3.5 py-1"
             >
-              {/* Email summary badge with edit action */}
-              <div className={`p-3 rounded-[14px] border flex items-center justify-between transition-colors ${
+              {/* Email Summary Pill with Edit Shortcut */}
+              <div className={`p-2.5 px-3 rounded-[14px] border flex items-center justify-between transition-colors ${
                 isDark ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
               }`}>
                 <div className="flex items-center gap-2.5 min-w-0 pr-2">
@@ -560,7 +666,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
               </div>
 
               {/* Password Form */}
-              <form onSubmit={handlePasswordStepSubmit} className="space-y-2.5">
+              <form onSubmit={handlePasswordStepSubmit} className="space-y-3">
                 {/* Full Name Input (when signing up) */}
                 {isSignUp && (
                   <div className="space-y-1">
@@ -674,7 +780,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                 </button>
               </form>
 
-              {/* Mode Switcher in Step 2 */}
+              {/* Mode Switcher in Step 3 */}
               <div className="text-center pt-1">
                 <p className={`text-xs font-sans ${isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
                   {isSignUp ? 'Need to log in instead?' : 'First time with this email?'}
@@ -696,7 +802,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
       </div>
 
       {/* Guest Login Option / Safety Net */}
-      <div className={`border-t pt-3 pb-0.5 z-10 flex flex-col gap-1.5 shrink-0 ${
+      <div className={`border-t pt-3 pb-1 z-10 flex flex-col gap-1.5 shrink-0 ${
         isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'
       }`}>
         <button

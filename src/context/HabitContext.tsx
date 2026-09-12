@@ -114,18 +114,36 @@ export function HabitProvider({ children }: { children: React.ReactNode }) {
   const isUS = unitSystem === 'imperial';
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const displayName = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
-        const email = firebaseUser.email || '';
-        const userProfile = { displayName, email };
-        setUser(userProfile);
-        storage.set('hbw_mock_logged_user', JSON.stringify(userProfile));
-        storage.set('hbw_has_logged_in', 'true');
-      }
+    // Safety timeout in case Firebase Auth listener is delayed in preview iframes
+    const safetyTimer = setTimeout(() => {
       setIsAuthLoading(false);
-    });
-    return () => unsubscribe();
+    }, 1200);
+
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (firebaseUser) => {
+        clearTimeout(safetyTimer);
+        if (firebaseUser) {
+          const displayName = firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User';
+          const email = firebaseUser.email || '';
+          const userProfile = { displayName, email };
+          setUser(userProfile);
+          storage.set('hbw_mock_logged_user', JSON.stringify(userProfile));
+          storage.set('hbw_has_logged_in', 'true');
+        }
+        setIsAuthLoading(false);
+      },
+      (error) => {
+        console.warn('Auth state observation notice:', error);
+        clearTimeout(safetyTimer);
+        setIsAuthLoading(false);
+      }
+    );
+
+    return () => {
+      clearTimeout(safetyTimer);
+      unsubscribe();
+    };
   }, []);
 
   const loginUser = (displayName: string, email: string) => {
