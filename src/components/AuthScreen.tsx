@@ -11,9 +11,7 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   KeyRound,
-  Edit2,
-  ChevronDown,
-  ChevronUp
+  Edit2
 } from 'lucide-react';
 import { 
   GoogleAuthProvider, 
@@ -41,7 +39,6 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
   // 3. 'password': Dedicated screen to input password (and name if sign-up) and complete authentication.
   const [step, setStep] = useState<'welcome' | 'email' | 'password'>('welcome');
   const [isSignUp, setIsSignUp] = useState(false);
-  const [showMoreSocials, setShowMoreSocials] = useState(false);
   
   // Form fields
   const [email, setEmail] = useState('');
@@ -277,9 +274,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
         <h2 className={`font-serif text-2xl font-normal tracking-tight ${
           isDark ? 'text-white' : 'text-[#1C1C1E]'
         }`}>
-          {step === 'welcome' && (
-            isSignUp ? <>Create your <i className="italic font-serif">account</i></> : <>Welcome to <i className="italic font-serif">Habits</i></>
-          )}
+          {step === 'welcome' && 'Welcome'}
           {step === 'email' && (
             isSignUp ? <>What's your <i className="italic font-serif">email</i>?</> : <>Enter your <i className="italic font-serif">email</i></>
           )}
@@ -293,7 +288,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
         }`}>
           {step === 'welcome' && (
             isSignUp 
-              ? 'Start your journey to positive daily change' 
+              ? 'Choose a method to sign up' 
               : 'Build sustainable habits for a better world'
           )}
           {step === 'email' && (
@@ -349,8 +344,8 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                 <div className={`flex-1 h-[1px] ${isDark ? 'bg-[#1F1F24]' : 'bg-[#E5E5EA]'}`} />
               </div>
 
-              {/* Streamlined Primary Social Logins (Google & Apple side-by-side) */}
-              <div className="space-y-2">
+              {/* Primary Social Logins (Google & Apple side-by-side) */}
+              <div className="space-y-2.5">
                 <div className="grid grid-cols-2 gap-2.5">
                   {/* Google Button */}
                   <button
@@ -398,136 +393,106 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                   </button>
                 </div>
 
-                {/* Expandable secondary options toggle */}
-                <div className="text-center pt-0.5">
+                {/* Additional Sign-In Options (Facebook, Instagram, Microsoft, TikTok) */}
+                <div className="grid grid-cols-4 gap-2 pt-0.5">
+                  {/* Facebook */}
                   <button
                     type="button"
-                    onClick={() => setShowMoreSocials(!showMoreSocials)}
-                    className={`inline-flex items-center gap-1 text-[11px] font-sans font-medium cursor-pointer transition-colors py-1 px-2.5 rounded-full ${
-                      isDark ? 'text-[#8E8E93] hover:text-white hover:bg-[#121214]' : 'text-[#6C6C70] hover:text-[#1C1C1E] hover:bg-black/5'
+                    title="Facebook"
+                    onClick={() => handleSocialSignIn('facebook')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                      isDark
+                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#1877F2]/60'
+                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#1877F2]/60'
                     }`}
                   >
-                    <span>{showMoreSocials ? 'Fewer options' : 'More sign-in options'}</span>
-                    {showMoreSocials ? (
-                      <ChevronUp className="w-3.5 h-3.5" />
+                    {activeSocialLoading === 'facebook' ? (
+                      <span className="w-4 h-4 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
                     ) : (
-                      <ChevronDown className="w-3.5 h-3.5" />
+                      <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
+                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Instagram */}
+                  <button
+                    type="button"
+                    title="Instagram"
+                    onClick={() => handleSocialSignIn('instagram')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                      isDark
+                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#E1306C]/60'
+                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#E1306C]/60'
+                    }`}
+                  >
+                    {activeSocialLoading === 'instagram' ? (
+                      <span className="w-4 h-4 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                        <defs>
+                          <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#f09433"/>
+                            <stop offset="25%" stopColor="#e6683c"/>
+                            <stop offset="50%" stopColor="#dc2743"/>
+                            <stop offset="75%" stopColor="#cc2366"/>
+                            <stop offset="100%" stopColor="#bc1888"/>
+                          </linearGradient>
+                        </defs>
+                        <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="url(#ig-grad)" strokeWidth="2"/>
+                        <circle cx="12" cy="12" r="4.2" stroke="url(#ig-grad)" strokeWidth="2"/>
+                        <circle cx="17.2" cy="6.8" r="1.2" fill="url(#ig-grad)"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Microsoft */}
+                  <button
+                    type="button"
+                    title="Microsoft"
+                    onClick={() => handleSocialSignIn('microsoft')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                      isDark
+                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#00A4EF]/60'
+                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#00A4EF]/60'
+                    }`}
+                  >
+                    {activeSocialLoading === 'microsoft' ? (
+                      <span className="w-4 h-4 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-3.5 h-3.5" viewBox="0 0 21 21">
+                        <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
+                        <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
+                        <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
+                        <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* TikTok */}
+                  <button
+                    type="button"
+                    title="TikTok"
+                    onClick={() => handleSocialSignIn('tiktok')}
+                    disabled={!!activeSocialLoading}
+                    className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
+                      isDark
+                        ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-white/60'
+                        : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-black/60'
+                    }`}
+                  >
+                    {activeSocialLoading === 'tiktok' ? (
+                      <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.45c1.47-1.42 2.27-3.4 2.22-5.46V8.58c1.37.98 3.03 1.54 4.75 1.59V6.72c-.41-.01-.83-.02-1.24-.03z" />
+                      </svg>
                     )}
                   </button>
                 </div>
-
-                {/* Secondary Providers: Collapsed by default to prevent visual crowding */}
-                <AnimatePresence>
-                  {showMoreSocials && (
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.18 }}
-                      className="overflow-hidden pt-1"
-                    >
-                      <div className="grid grid-cols-4 gap-2">
-                        {/* Facebook */}
-                        <button
-                          type="button"
-                          title="Facebook"
-                          onClick={() => handleSocialSignIn('facebook')}
-                          disabled={!!activeSocialLoading}
-                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                            isDark
-                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#1877F2]/60'
-                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#1877F2]/60'
-                          }`}
-                        >
-                          {activeSocialLoading === 'facebook' ? (
-                            <span className="w-4 h-4 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <svg className="w-4 h-4 fill-[#1877F2]" viewBox="0 0 24 24">
-                              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                            </svg>
-                          )}
-                        </button>
-
-                        {/* Instagram */}
-                        <button
-                          type="button"
-                          title="Instagram"
-                          onClick={() => handleSocialSignIn('instagram')}
-                          disabled={!!activeSocialLoading}
-                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                            isDark
-                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#E1306C]/60'
-                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#E1306C]/60'
-                          }`}
-                        >
-                          {activeSocialLoading === 'instagram' ? (
-                            <span className="w-4 h-4 border-2 border-[#E1306C] border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none">
-                              <defs>
-                                <linearGradient id="ig-grad" x1="0%" y1="100%" x2="100%" y2="0%">
-                                  <stop offset="0%" stopColor="#f09433"/>
-                                  <stop offset="25%" stopColor="#e6683c"/>
-                                  <stop offset="50%" stopColor="#dc2743"/>
-                                  <stop offset="75%" stopColor="#cc2366"/>
-                                  <stop offset="100%" stopColor="#bc1888"/>
-                                </linearGradient>
-                              </defs>
-                              <rect x="2.5" y="2.5" width="19" height="19" rx="5" stroke="url(#ig-grad)" strokeWidth="2"/>
-                              <circle cx="12" cy="12" r="4.2" stroke="url(#ig-grad)" strokeWidth="2"/>
-                              <circle cx="17.2" cy="6.8" r="1.2" fill="url(#ig-grad)"/>
-                            </svg>
-                          )}
-                        </button>
-
-                        {/* Microsoft */}
-                        <button
-                          type="button"
-                          title="Microsoft"
-                          onClick={() => handleSocialSignIn('microsoft')}
-                          disabled={!!activeSocialLoading}
-                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                            isDark
-                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-[#00A4EF]/60'
-                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-[#00A4EF]/60'
-                          }`}
-                        >
-                          {activeSocialLoading === 'microsoft' ? (
-                            <span className="w-4 h-4 border-2 border-[#00A4EF] border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <svg className="w-3.5 h-3.5" viewBox="0 0 21 21">
-                              <rect x="1" y="1" width="9" height="9" fill="#f25022"/>
-                              <rect x="11" y="1" width="9" height="9" fill="#7fba00"/>
-                              <rect x="1" y="11" width="9" height="9" fill="#00a4ef"/>
-                              <rect x="11" y="11" width="9" height="9" fill="#ffb900"/>
-                            </svg>
-                          )}
-                        </button>
-
-                        {/* TikTok */}
-                        <button
-                          type="button"
-                          title="TikTok"
-                          onClick={() => handleSocialSignIn('tiktok')}
-                          disabled={!!activeSocialLoading}
-                          className={`h-[42px] rounded-[12px] border flex items-center justify-center transition-all cursor-pointer active:scale-95 ${
-                            isDark
-                              ? 'bg-[#121214] hover:bg-[#1A1A1E] border-[#1F1F24] hover:border-white/60'
-                              : 'bg-white hover:bg-[#F2F2F7] border-[#E5E5EA] hover:border-black/60'
-                          }`}
-                        >
-                          {activeSocialLoading === 'tiktok' ? (
-                            <span className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64c.298-.002.595.042.88.13V9.4a6.33 6.33 0 0 0-1-.08A6.34 6.34 0 0 0 3 15.66a6.34 6.34 0 0 0 10.86 4.45c1.47-1.42 2.27-3.4 2.22-5.46V8.58c1.37.98 3.03 1.54 4.75 1.59V6.72c-.41-.01-.83-.02-1.24-.03z" />
-                            </svg>
-                          )}
-                        </button>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
 
               {/* Mode Switcher: Log In vs Sign Up Free (Positioned below all login options, above guest mode) */}
@@ -673,7 +638,7 @@ export default function AuthScreen({ onLoginSuccess, onContinueAsGuest, theme = 
                     <label className={`text-[12px] font-semibold block px-1 ${
                       isDark ? 'text-[#8E8E93]' : 'text-[#6C6C70]'
                     }`}>
-                      Your Full Name
+                      What's Your Name?
                     </label>
                     <div className="relative">
                       <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8E8E93]" />
