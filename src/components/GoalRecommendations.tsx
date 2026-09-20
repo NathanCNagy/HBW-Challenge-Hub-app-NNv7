@@ -101,25 +101,7 @@ export default function GoalRecommendations({ answers, topGoal, onCommit, onRese
         />
 
         {/* Card Header: Centered & Space-Optimized */}
-        <div className="flex flex-col items-center text-center gap-3 z-10 w-full">
-          {/* Pills / Badges */}
-          <div className="flex items-center justify-center gap-2 flex-wrap">
-            <span className={`inline-block text-[10px] uppercase font-mono font-bold tracking-widest px-3 py-1 rounded-full ${
-              isDark
-                ? 'bg-[#0080FF]/15 text-[#0080FF] border border-[#0080FF]/30'
-                : 'bg-[#E5F1FF] text-[#0066CC] border border-[#0080FF]/30'
-            }`}>
-              {activeGoal.badgeLabel || 'TOP PILLAR ACTION'}
-            </span>
-            <span className={`text-[11px] px-3 py-0.5 rounded-full font-sans font-semibold ${
-              isDark
-                ? 'bg-[#0A0A0C] border border-[#1F1F24] text-white'
-                : 'bg-[#F2F2F7] border border-[#E5E5EA] text-[#1C1C1E]'
-            }`}>
-              {activeGoal.category}
-            </span>
-          </div>
-
+        <div className="flex flex-col items-center text-center gap-2 z-10 w-full">
           {/* Habit Title */}
           <div className="space-y-1.5 max-w-xl mx-auto">
             <h3 className={`text-2xl sm:text-3xl font-serif font-normal leading-tight tracking-tight ${
