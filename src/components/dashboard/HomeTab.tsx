@@ -146,23 +146,6 @@ export default function HomeTab({
         </motion.div>
       )}
 
-      {/* Motivational Psychology Card */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-2 relative overflow-hidden transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center gap-1.5">
-          <Sparkles className="w-4 h-4 text-[#0080FF]" />
-          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0080FF]">
-            Daily Motivation
-          </span>
-        </div>
-        <p className={`text-xs leading-relaxed font-sans italic ${
-          theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
-        }`}>
-          "{motivationalQuote}"
-        </p>
-      </div>
-
       {/* Smart Reminders Section */}
       {!hasConfiguredNotifications ? (
         <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
@@ -227,6 +210,23 @@ export default function HomeTab({
           </button>
         </div>
       )}
+
+      {/* Motivational Psychology Card (at the bottom of home screen) */}
+      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-2 relative overflow-hidden transition-colors duration-200 ${
+        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+      }`}>
+        <div className="flex items-center gap-1.5">
+          <Sparkles className="w-4 h-4 text-[#0080FF]" />
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#0080FF]">
+            Daily Motivation
+          </span>
+        </div>
+        <p className={`text-xs leading-relaxed font-sans italic ${
+          theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
+        }`}>
+          "{motivationalQuote}"
+        </p>
+      </div>
     </div>
   );
 }
