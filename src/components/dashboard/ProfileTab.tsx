@@ -9,9 +9,14 @@ import {
   LogOut, 
   Sun, 
   Moon, 
-  Globe
+  Globe,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Info
 } from 'lucide-react';
-import { Goal, QuizAnswers } from '../../types';
+import { motion, AnimatePresence } from 'motion/react';
+import { Goal, QuizAnswers, ImplementationOption } from '../../types';
 import SmartAlerts from '../SmartAlerts';
 import HabitsManager from '../HabitsManager';
 import { useHabit } from '../../context/HabitContext';
@@ -49,8 +54,9 @@ export default function ProfileTab({
   setHasConfiguredNotifications,
   onDownloadPDF
 }: ProfileTabProps) {
-  const { unitSystem, setUnitSystem, isUS } = useHabit();
+  const { unitSystem, setUnitSystem, isUS, commitGoal } = useHabit();
   const [isEditingProfile, setIsEditingProfile] = useState<boolean>(false);
+  const [isScheduleExpanded, setIsScheduleExpanded] = useState<boolean>(false);
   const [editAge, setEditAge] = useState<string>(answers.age);
   const [editGender, setEditGender] = useState<string>(answers.gender);
 
@@ -69,6 +75,16 @@ export default function ProfileTab({
       });
     }
     setIsEditingProfile(false);
+  };
+
+  const handleSelectPace = (option: ImplementationOption) => {
+    const updatedGoal: Goal = {
+      ...activeGoal,
+      selectedOption: option,
+      action: `${option.title}: ${option.description}`
+    };
+    setActiveGoal(updatedGoal);
+    commitGoal(updatedGoal);
   };
 
   return (
@@ -300,6 +316,150 @@ export default function ProfileTab({
           </button>
         </div>
       </div>
+
+      {/* Adapt Plan & Choose Your Pace Card (Expandable Dropdown) */}
+      {activeGoal.implementationOptions && activeGoal.implementationOptions.length > 0 && (() => {
+        const currentOption = activeGoal.selectedOption || activeGoal.implementationOptions[0];
+        return (
+          <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-2 transition-colors duration-200 ${
+            theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+          }`}>
+            {/* Micro-explanation callout */}
+            <div className={`text-[11px] font-sans font-medium px-0.5 ${
+              theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
+            }`}>
+              <span>Adapt plan to work for you</span>
+            </div>
+
+            {/* Accordion Header / Trigger Button */}
+            <button
+              type="button"
+              id="toggle-profile-schedule-tuner-btn"
+              onClick={() => setIsScheduleExpanded(!isScheduleExpanded)}
+              className={`w-full flex items-center justify-between p-3.5 rounded-[14px] transition-all cursor-pointer group text-left ${
+                isScheduleExpanded
+                  ? theme === 'dark'
+                    ? 'bg-[#0A0A0C] border-2 border-[#0080FF] shadow-sm'
+                    : 'bg-[#F2F8FF] border-2 border-[#0080FF] shadow-xs'
+                  : theme === 'dark'
+                  ? 'bg-[#0A0A0C] hover:bg-[#121214] border border-[#1F1F24] hover:border-[#0080FF]/60'
+                  : 'bg-[#F9F9FB] hover:bg-[#F2F2F7] border border-[#E5E5EA] hover:border-[#0080FF]/60'
+              }`}
+            >
+              <div className="space-y-1.5 flex-1 min-w-0 pr-3">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <h4 className={`text-sm font-sans font-bold ${
+                    theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
+                  }`}>
+                    Choose Your Pace
+                  </h4>
+                  <span className={`text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full ${
+                    theme === 'dark' ? 'bg-[#0080FF]/15 text-[#0080FF]' : 'bg-[#E5F1FF] text-[#0066CC]'
+                  }`}>
+                    {currentOption.title.split('(')[0].trim()}
+                  </span>
+                </div>
+                <p className={`text-xs font-sans leading-relaxed ${
+                  theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
+                }`}>
+                  {isScheduleExpanded
+                    ? 'Select the frequency that feels easiest to start with.'
+                    : `Currently: ${currentOption.scheduleText} · Tap to change`}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-1 text-xs font-sans font-semibold text-[#0080FF] shrink-0 pl-1">
+                <span>{isScheduleExpanded ? 'Done' : 'Change'}</span>
+                {isScheduleExpanded ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
+              </div>
+            </button>
+
+            {/* Accordion Content */}
+            <AnimatePresence>
+              {isScheduleExpanded && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="overflow-hidden space-y-3 pt-1.5"
+                >
+                  <div className={`p-3 rounded-[12px] text-xs leading-relaxed flex items-start gap-2 border ${
+                    theme === 'dark'
+                      ? 'bg-[#0A0A0C]/80 border-[#1F1F24] text-[#98989D]'
+                      : 'bg-[#F2F2F7] border-[#E5E5EA] text-[#6C6C70]'
+                  }`}>
+                    <Info className="w-4 h-4 text-[#0080FF] shrink-0 mt-0.5" />
+                    <span>
+                      <strong className={theme === 'dark' ? 'text-white font-medium' : 'text-[#1C1C1E] font-semibold'}>Quick tip:</strong> Starting small makes habits stick. Pick what feels 100% doable today—you can always level up later.
+                    </span>
+                  </div>
+
+                  {/* Implementation Options Radio List */}
+                  <div className="space-y-2">
+                    {activeGoal.implementationOptions.map((option) => {
+                      const isSelected = currentOption.id === option.id;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          onClick={() => handleSelectPace(option)}
+                          className={`w-full p-3.5 rounded-[14px] border text-left transition-all flex items-start gap-3 cursor-pointer ${
+                            isSelected
+                              ? theme === 'dark'
+                                ? 'bg-[#0A0A0C] border-2 border-[#0080FF] shadow-sm'
+                                : 'bg-[#F2F8FF] border-2 border-[#0080FF] shadow-xs'
+                              : theme === 'dark'
+                              ? 'bg-[#0A0A0C]/50 border-[#1F1F24] hover:border-[#0080FF]/40'
+                              : 'bg-white border-[#E5E5EA] hover:border-[#0080FF]/40 shadow-2xs'
+                          }`}
+                        >
+                          <div className={`mt-0.5 w-4 h-4 rounded-full border flex items-center justify-center shrink-0 ${
+                            isSelected
+                              ? 'border-[#0080FF] bg-[#0080FF]'
+                              : theme === 'dark' ? 'border-[#636366]' : 'border-[#C7C7CC]'
+                          }`}>
+                            {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-white" />}
+                          </div>
+
+                          <div className="space-y-1 flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center justify-between gap-1.5">
+                              <span className={`text-xs font-sans font-bold ${
+                                isSelected
+                                  ? theme === 'dark' ? 'text-white' : 'text-[#1C1C1E]'
+                                  : theme === 'dark' ? 'text-[#E5E5EA]' : 'text-[#2C2C2E]'
+                              }`}>
+                                {option.title}
+                              </span>
+                              <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
+                                isSelected
+                                  ? theme === 'dark' ? 'bg-[#0080FF]/20 text-[#0080FF] border border-[#0080FF]/30' : 'bg-[#E5F1FF] text-[#0066CC] border border-[#0080FF]/30'
+                                  : theme === 'dark' ? 'bg-[#121214] text-[#8E8E93]' : 'bg-[#F2F2F7] text-[#6C6C70]'
+                              }`}>
+                                {option.foggAbilityRating}
+                              </span>
+                            </div>
+
+                            <p className={`text-xs font-sans leading-relaxed ${
+                              theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
+                            }`}>
+                              {option.description}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })()}
 
       {/* Permanent Smart Reminders & Notification Settings */}
       <div className="flex flex-col gap-2">

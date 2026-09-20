@@ -153,10 +153,9 @@ export default function GoalRecommendations({ answers, topGoal, onCommit, onRese
           isDark ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'
         }`}>
           {/* Micro-explanation callout */}
-          <div className={`text-[11px] font-sans font-medium flex items-center gap-1.5 px-0.5 ${
+          <div className={`text-[11px] font-sans font-medium px-0.5 ${
             isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
           }`}>
-            <Sliders className="w-3.5 h-3.5 text-[#0080FF]" />
             <span>Adapt plan to work for you</span>
           </div>
 
@@ -165,7 +164,7 @@ export default function GoalRecommendations({ answers, topGoal, onCommit, onRese
             type="button"
             id="toggle-schedule-tuner-btn"
             onClick={() => setIsScheduleExpanded(!isScheduleExpanded)}
-            className={`w-full flex items-center justify-between p-3.5 rounded-[16px] transition-all cursor-pointer group text-left ${
+            className={`w-full flex items-center justify-between p-4 rounded-[16px] transition-all cursor-pointer group text-left ${
               isScheduleExpanded
                 ? isDark
                   ? 'bg-[#0A0A0C] border-2 border-[#0080FF] shadow-md'
@@ -175,36 +174,29 @@ export default function GoalRecommendations({ answers, topGoal, onCommit, onRese
                 : 'bg-[#F9F9FB] hover:bg-[#F2F2F7] border border-[#E5E5EA] hover:border-[#0080FF]/60'
             }`}
           >
-            <div className="flex items-start gap-3 min-w-0">
-              <div className={`p-2 rounded-[10px] shrink-0 mt-0.5 ${
-                isDark ? 'bg-[#0080FF]/15 text-[#0080FF]' : 'bg-[#E5F1FF] text-[#0066CC]'
-              }`}>
-                <Gauge className="w-4 h-4" />
-              </div>
-              <div className="space-y-0.5 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className={`text-sm font-sans font-bold ${
-                    isDark ? 'text-white' : 'text-[#1C1C1E]'
-                  }`}>
-                    Choose Your Pace
-                  </h4>
-                  <span className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full ${
-                    isDark ? 'bg-[#0080FF]/15 text-[#0080FF]' : 'bg-[#E5F1FF] text-[#0066CC]'
-                  }`}>
-                    {selectedOption.title.split('(')[0].trim()}
-                  </span>
-                </div>
-                <p className={`text-xs font-sans leading-normal ${
-                  isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
+            <div className="space-y-1.5 flex-1 min-w-0 pr-3">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <h4 className={`text-sm font-sans font-bold ${
+                  isDark ? 'text-white' : 'text-[#1C1C1E]'
                 }`}>
-                  {isScheduleExpanded
-                    ? 'Select the frequency that feels easiest to start with.'
-                    : `Currently: ${selectedOption.scheduleText} · Tap to change`}
-                </p>
+                  Choose Your Pace
+                </h4>
+                <span className={`text-[10px] font-mono font-semibold px-2.5 py-0.5 rounded-full ${
+                  isDark ? 'bg-[#0080FF]/15 text-[#0080FF]' : 'bg-[#E5F1FF] text-[#0066CC]'
+                }`}>
+                  {selectedOption.title.split('(')[0].trim()}
+                </span>
               </div>
+              <p className={`text-xs font-sans leading-relaxed ${
+                isDark ? 'text-[#98989D]' : 'text-[#6C6C70]'
+              }`}>
+                {isScheduleExpanded
+                  ? 'Select the frequency that feels easiest to start with.'
+                  : `Currently: ${selectedOption.scheduleText} · Tap to change`}
+              </p>
             </div>
 
-            <div className="flex items-center gap-1 text-xs font-sans font-semibold text-[#0080FF] shrink-0 pl-2">
+            <div className="flex items-center gap-1 text-xs font-sans font-semibold text-[#0080FF] shrink-0 pl-1">
               <span>{isScheduleExpanded ? 'Done' : 'Change'}</span>
               {isScheduleExpanded ? (
                 <ChevronUp className="w-4 h-4" />

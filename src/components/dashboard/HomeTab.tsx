@@ -76,6 +76,27 @@ export default function HomeTab({
           }`}>
             {activeGoal.action}
           </p>
+
+          {/* Lightweight Pace Indicator & Shortcut to Profile Tab */}
+          <div className={`flex items-center justify-between pt-2 mt-0.5 border-t border-dashed z-10 ${
+            theme === 'dark' ? 'border-[#1F1F24]' : 'border-[#E5E5EA]'
+          }`}>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <span className={`text-[11px] font-sans ${theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'}`}>
+                Pace:
+              </span>
+              <span className="text-[11px] font-mono font-semibold text-[#0080FF] truncate">
+                {activeGoal.selectedOption?.title?.split('(')[0]?.trim() || activeGoal.implementationOptions?.[0]?.title?.split('(')[0]?.trim() || 'Standard Plan'}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => onNavigateToTab('profile')}
+              className="text-[11px] font-sans font-semibold text-[#0080FF] hover:underline cursor-pointer shrink-0"
+            >
+              Adjust pace &rarr;
+            </button>
+          </div>
         </div>
 
         {/* Link to Progress Tab for habit tracking & logging */}
