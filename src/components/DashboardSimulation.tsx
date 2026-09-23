@@ -336,11 +336,11 @@ export default function DashboardSimulation({
             setActiveTab('home');
             setShowOverflowMenu(false);
           }}
-          className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 active:scale-95 transition-all text-left group py-1 px-1.5 -ml-1 rounded-xl"
+          className="flex items-center gap-2 cursor-pointer hover:opacity-90 active:scale-95 transition-all text-left group py-1 px-1.5 -ml-1 rounded-xl"
           title="Return to Home Tab"
           aria-label="Return to Home Tab"
         >
-          <HBWLogo size="sm" className="h-9" theme={theme} />
+          <HBWLogo variant="favicon" size="sm" className="h-8 w-8" theme={theme} />
           <span className="font-mono text-[10px] text-[#0080FF] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#0080FF]/10 border border-[#0080FF]/20 group-hover:bg-[#0080FF]/15 transition-colors">
             Hub
           </span>

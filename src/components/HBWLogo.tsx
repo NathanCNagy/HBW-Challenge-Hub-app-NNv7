@@ -5,14 +5,43 @@ export interface HBWLogoProps {
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   theme?: 'dark' | 'light';
   ariaLabel?: string;
+  variant?: 'full' | 'favicon';
 }
 
 export default function HBWLogo({ 
   className = '', 
   size = 'md', 
   theme = 'light',
-  ariaLabel = 'Habits for a Better World'
+  ariaLabel = 'Habits for a Better World',
+  variant = 'full'
 }: HBWLogoProps) {
+  if (variant === 'favicon') {
+    const faviconSizeClasses: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
+      xs: 'h-6 w-6',
+      sm: 'h-8 w-8',
+      md: 'h-10 w-10',
+      lg: 'h-14 w-14',
+      xl: 'h-20 w-20',
+    };
+
+    return (
+      <svg 
+        className={`shrink-0 select-none ${faviconSizeClasses[size]} ${className}`} 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label={ariaLabel}
+      >
+        {/* Left semi-circle: vibrant blue (#0080FF) from Favicon version */}
+        <path 
+          d="M 50 6 A 44 44 0 0 0 50 94 Z" 
+          fill="#0080FF" 
+        />
+      </svg>
+    );
+  }
+
   const sizeClasses: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl', string> = {
     xs: 'h-6',
     sm: 'h-8',

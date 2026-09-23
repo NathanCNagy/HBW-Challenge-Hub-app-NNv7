@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Info
+  Info,
+  Sliders
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Goal, QuizAnswers, ImplementationOption } from '../../types';
@@ -218,105 +219,6 @@ export default function ProfileTab({
         )}
       </div>
 
-      {/* Appearance Theme Selector */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {theme === 'dark' ? <Moon className="w-4 h-4 text-[#0080FF]" /> : <Sun className="w-4 h-4 text-amber-500" />}
-            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Appearance</h4>
-          </div>
-          <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2.5 py-0.5 rounded-full">
-            {theme === 'dark' ? 'Dark' : 'Light'}
-          </span>
-        </div>
-
-        <p className={`text-xs leading-relaxed font-sans ${
-          theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
-        }`}>
-          Dark mode reduces energy consumption and screen glare.
-        </p>
-
-        <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
-          theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-        }`}>
-          <button
-            type="button"
-            onClick={() => onToggleTheme && onToggleTheme('light')}
-            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              theme === 'light'
-                ? 'bg-[#0080FF] text-white shadow-xs'
-                : theme === 'dark'
-                  ? 'text-[#98989D] hover:text-white'
-                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-            }`}
-          >
-            <Sun className="w-4 h-4" />
-            <span>Light</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onToggleTheme && onToggleTheme('dark')}
-            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
-              theme === 'dark'
-                ? 'bg-[#0080FF] text-white shadow-xs'
-                : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-            }`}
-          >
-            <Moon className="w-4 h-4" />
-            <span>Dark</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Impact Measurements Selector */}
-      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
-        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Globe className="w-4 h-4 text-[#0080FF]" />
-            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Impact Measurements</h4>
-          </div>
-          <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2.5 py-0.5 rounded-full">
-            {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}
-          </span>
-        </div>
-
-        <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
-          theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
-        }`}>
-          <button
-            type="button"
-            onClick={() => setUnitSystem('imperial')}
-            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              unitSystem === 'imperial'
-                ? 'bg-[#0080FF] text-white shadow-xs'
-                : theme === 'dark'
-                  ? 'text-[#98989D] hover:text-white'
-                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-            }`}
-          >
-            <span>US (mi)</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setUnitSystem('metric')}
-            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              unitSystem === 'metric'
-                ? 'bg-[#0080FF] text-white shadow-xs'
-                : theme === 'dark'
-                  ? 'text-[#98989D] hover:text-white'
-                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
-            }`}
-          >
-            <span>Metric (km)</span>
-          </button>
-        </div>
-      </div>
-
       {/* Adapt Plan & Choose Your Pace Card (Expandable Dropdown) */}
       {activeGoal.implementationOptions && activeGoal.implementationOptions.length > 0 && (() => {
         const currentOption = activeGoal.selectedOption || activeGoal.implementationOptions[0];
@@ -325,9 +227,10 @@ export default function ProfileTab({
             theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
           }`}>
             {/* Micro-explanation callout */}
-            <div className={`text-[11px] font-sans font-medium px-0.5 ${
+            <div className={`text-[11px] font-sans font-medium px-0.5 flex items-center gap-1.5 ${
               theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
             }`}>
+              <Sliders className="w-3.5 h-3.5 text-[#0080FF]" />
               <span>Adapt plan to work for you</span>
             </div>
 
@@ -460,6 +363,105 @@ export default function ProfileTab({
           </div>
         );
       })()}
+
+      {/* Appearance Theme Selector */}
+      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
+        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {theme === 'dark' ? <Moon className="w-4 h-4 text-[#0080FF]" /> : <Sun className="w-4 h-4 text-amber-500" />}
+            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Appearance</h4>
+          </div>
+          <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2.5 py-0.5 rounded-full">
+            {theme === 'dark' ? 'Dark' : 'Light'}
+          </span>
+        </div>
+
+        <p className={`text-xs leading-relaxed font-sans ${
+          theme === 'dark' ? 'text-[#98989D]' : 'text-[#6C6C70]'
+        }`}>
+          Dark mode reduces energy consumption and screen glare.
+        </p>
+
+        <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
+          theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
+        }`}>
+          <button
+            type="button"
+            onClick={() => onToggleTheme && onToggleTheme('light')}
+            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              theme === 'light'
+                ? 'bg-[#0080FF] text-white shadow-xs'
+                : theme === 'dark'
+                  ? 'text-[#98989D] hover:text-white'
+                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+            }`}
+          >
+            <Sun className="w-4 h-4" />
+            <span>Light</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onToggleTheme && onToggleTheme('dark')}
+            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
+              theme === 'dark'
+                ? 'bg-[#0080FF] text-white shadow-xs'
+                : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+            }`}
+          >
+            <Moon className="w-4 h-4" />
+            <span>Dark</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Impact Measurements Selector */}
+      <div className={`p-4 border rounded-[16px] shadow-xs flex flex-col gap-3 transition-colors duration-200 ${
+        theme === 'dark' ? 'bg-[#121214] border-[#1F1F24]' : 'bg-white border-[#E5E5EA]'
+      }`}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Globe className="w-4 h-4 text-[#0080FF]" />
+            <h4 className="text-xs font-sans font-bold uppercase tracking-wider">Impact Measurements</h4>
+          </div>
+          <span className="text-[10px] font-mono font-semibold text-[#0080FF] bg-[#0080FF]/15 px-2.5 py-0.5 rounded-full">
+            {unitSystem === 'imperial' ? 'US (mi)' : 'Metric (km)'}
+          </span>
+        </div>
+
+        <div className={`p-1 rounded-full border grid grid-cols-2 gap-1 ${
+          theme === 'dark' ? 'bg-[#0A0A0C] border-[#1F1F24]' : 'bg-[#F5F5F7] border-[#E5E5EA]'
+        }`}>
+          <button
+            type="button"
+            onClick={() => setUnitSystem('imperial')}
+            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              unitSystem === 'imperial'
+                ? 'bg-[#0080FF] text-white shadow-xs'
+                : theme === 'dark'
+                  ? 'text-[#98989D] hover:text-white'
+                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+            }`}
+          >
+            <span>US (mi)</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setUnitSystem('metric')}
+            className={`py-2 px-3 rounded-full text-xs font-sans font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+              unitSystem === 'metric'
+                ? 'bg-[#0080FF] text-white shadow-xs'
+                : theme === 'dark'
+                  ? 'text-[#98989D] hover:text-white'
+                  : 'text-[#6C6C70] hover:text-[#1C1C1E]'
+            }`}
+          >
+            <span>Metric (km)</span>
+          </button>
+        </div>
+      </div>
 
       {/* Permanent Smart Reminders & Notification Settings */}
       <div className="flex flex-col gap-2">
