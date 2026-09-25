@@ -19,19 +19,27 @@ async function startServer() {
   const app = express();
 
   // Environment determination:
-  // We run in PRODUCTION mode if:
-  // - NODE_ENV is 'production'
-  // - OR running inside the deployed Cloud Run service (K_SERVICE starts with 'ais-pre')
-  // - OR npm script lifecycle is 'start'
-  // - OR not running 'npm run dev' and a static dist bundle exists
+  const isCloudRun = Boolean(process.env.K_SERVICE);
   const isCloudRunPreview = Boolean(process.env.K_SERVICE && process.env.K_SERVICE.startsWith('ais-pre'));
-  const isExplicitDevScript = process.env.npm_lifecycle_event === 'dev';
+  const isExplicitDevScript = process.env.npm_lifecycle_event === 'dev' && !isCloudRunPreview;
+
+  // Primary dist directory resolution
+  const rootDir = process.cwd();
+  const baseDir = import.meta.dirname || rootDir;
+  const candidateDistDirs = [
+    path.resolve(baseDir, 'dist'),
+    path.resolve(rootDir, 'dist'),
+    path.resolve(rootDir, 'applet', 'dist'),
+    '/app/applet/dist'
+  ];
+  let distPath = candidateDistDirs.find(p => fs.existsSync(path.join(p, 'index.html'))) || path.resolve(baseDir, 'dist');
+  let hasDistBundle = fs.existsSync(path.join(distPath, 'index.html'));
 
   const isProduction =
     isCloudRunPreview ||
     process.env.NODE_ENV === 'production' ||
     process.env.npm_lifecycle_event === 'start' ||
-    (!isExplicitDevScript && fs.existsSync(path.join(process.cwd(), 'dist', 'index.html')));
+    (!isExplicitDevScript && hasDistBundle);
 
   const isDevMode = !isProduction;
 
@@ -39,7 +47,7 @@ async function startServer() {
   app.use(express.json());
 
   // Health check endpoints for Cloud Run container probes & load balancers
-  app.get(['/healthz', '/health', '/_health', '/api/health'], (req, res) => {
+  app.get(['/healthz', '/health', '/_health', '/api/health', '/readyz', '/ping'], (req, res) => {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
   });
 
@@ -181,25 +189,35 @@ The topGoal must have a unique ID like "ai-top", the alternatives should have ID
     app.use(vite.middlewares);
     console.log('Vite development server mounted as Express middleware.');
   } else {
-    // Robust detection of dist folder across different execution directories
-    const distDir = path.resolve(process.cwd(), 'dist');
-    const candidatePaths = [
-      distDir,
-      path.resolve(import.meta.dirname || process.cwd(), 'dist'),
-      process.cwd()
-    ];
-    const distPath = candidatePaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || distDir;
-
-    app.use(express.static(distPath));
-    app.get('*', (req, res) => {
-      const indexPath = path.join(distPath, 'index.html');
-      if (fs.existsSync(indexPath)) {
-        res.sendFile(indexPath);
-      } else {
-        res.status(200).send('<!DOCTYPE html><html><head><title>Habits for a Better World</title></head><body><h1>Habits for a Better World</h1><p>Building application assets, please refresh shortly...</p></body></html>');
+    // If in production mode but dist/index.html is missing, build it on-demand
+    if (!hasDistBundle) {
+      try {
+        console.log('Production assets not pre-built. Compiling via vite build now...');
+        const { execSync } = await import('child_process');
+        execSync('npx vite build', { stdio: 'inherit', cwd: baseDir });
+        distPath = candidateDistDirs.find(p => fs.existsSync(path.join(p, 'index.html'))) || distPath;
+        hasDistBundle = fs.existsSync(path.join(distPath, 'index.html'));
+      } catch (err) {
+        console.error('On-demand production asset compilation failed:', err);
       }
-    });
-    console.log('Serving production static distribution from:', distPath);
+    }
+
+    if (hasDistBundle) {
+      app.use(express.static(distPath));
+      app.get('*', (req, res) => {
+        res.sendFile(path.join(distPath, 'index.html'));
+      });
+      console.log('Serving production static distribution from:', distPath);
+    } else {
+      // Graceful fallback to Vite middleware if static bundle cannot be prepared
+      console.warn('Falling back to Vite middleware because dist bundle could not be found or built.');
+      const { createServer: createViteServer } = await import('vite');
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: 'spa',
+      });
+      app.use(vite.middlewares);
+    }
   }
 
   // Start server listener(s):
