@@ -325,7 +325,7 @@ export default function DashboardSimulation({
     }`}>
       
       {/* Dynamic Mini Bezel Header */}
-      <div className={`px-4 py-3 border-b flex items-center justify-between shadow-xs shrink-0 z-20 transition-colors duration-200 ${
+      <div className={`px-4 py-2 border-b flex items-center justify-between shadow-xs shrink-0 z-20 transition-colors duration-200 ${
         theme === 'dark' ? 'bg-[#121214] border-[#1F1F24] text-white' : 'bg-white border-[#E5E5EA] text-[#1C1C1E]'
       }`}>
         {/* HBW Hub Logo on Top Left - Tap to navigate to Home tab */}
@@ -336,11 +336,11 @@ export default function DashboardSimulation({
             setActiveTab('home');
             setShowOverflowMenu(false);
           }}
-          className="flex items-center gap-2 cursor-pointer hover:opacity-90 active:scale-95 transition-all text-left group py-1 px-1.5 -ml-1 rounded-xl"
+          className="flex items-center gap-2 cursor-pointer hover:opacity-90 active:scale-95 transition-all text-left group py-0.5 px-1.5 -ml-1 rounded-xl"
           title="Return to Home Tab"
           aria-label="Return to Home Tab"
         >
-          <HBWLogo variant="favicon" size="sm" className="h-8 w-8" theme={theme} />
+          <HBWLogo variant="favicon" size="sm" className="h-7 w-7" theme={theme} />
           <span className="font-mono text-[10px] text-[#0080FF] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#0080FF]/10 border border-[#0080FF]/20 group-hover:bg-[#0080FF]/15 transition-colors">
             Hub
           </span>

@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import http from 'http';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 
@@ -17,21 +18,22 @@ process.on('unhandledRejection', (reason, promise) => {
 async function startServer() {
   const app = express();
 
-  // Port resolution:
-  // 1. Inside AI Studio Dev Container Sandbox: An internal NGINX reverse-proxy listens on
-  //    NGINX_PORT (8080) and forwards requests to DEFAULT_APP_PORT (3000).
-  //    In this environment, the server MUST bind to port 3000.
-  // 2. In Cloud Run Production Deployment: There is no NGINX reverse-proxy.
-  //    Cloud Run passes PORT (defaults to 8080) and performs startup health checks on 0.0.0.0:$PORT.
-  //    In this environment, the server MUST bind to process.env.PORT (or 8080).
-  const isDevContainer = Boolean(
-    process.env.CONTROL_PLANE_PORT ||
-    (process.env.DEFAULT_APP_PORT && process.env.NGINX_PORT)
-  );
+  // Environment determination:
+  // We run in PRODUCTION mode if:
+  // - NODE_ENV is 'production'
+  // - OR running inside the deployed Cloud Run service (K_SERVICE starts with 'ais-pre')
+  // - OR npm script lifecycle is 'start'
+  // - OR not running 'npm run dev' and a static dist bundle exists
+  const isCloudRunPreview = Boolean(process.env.K_SERVICE && process.env.K_SERVICE.startsWith('ais-pre'));
+  const isExplicitDevScript = process.env.npm_lifecycle_event === 'dev';
 
-  const primaryPort = isDevContainer
-    ? 3000
-    : (process.env.PORT ? parseInt(process.env.PORT, 10) : 8080);
+  const isProduction =
+    isCloudRunPreview ||
+    process.env.NODE_ENV === 'production' ||
+    process.env.npm_lifecycle_event === 'start' ||
+    (!isExplicitDevScript && fs.existsSync(path.join(process.cwd(), 'dist', 'index.html')));
+
+  const isDevMode = !isProduction;
 
   // Setup body parsers
   app.use(express.json());
@@ -169,18 +171,8 @@ The topGoal must have a unique ID like "ai-top", the alternatives should have ID
     }
   });
 
-  // Determine production vs dev environment
-  const distDir = path.resolve(process.cwd(), 'dist');
-  const hasDist = fs.existsSync(path.join(distDir, 'index.html'));
-
-  // If in production, deployed to Cloud Run, or dist folder exists (and not explicitly dev mode),
-  // serve the pre-built static bundle.
-  const isProduction =
-    process.env.NODE_ENV === 'production' ||
-    Boolean(process.env.K_SERVICE && !isDevContainer) ||
-    (hasDist && process.env.NODE_ENV !== 'development');
-
-  if (!isProduction) {
+  // Mount frontend: dev server middleware in development, static build in production
+  if (isDevMode) {
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
@@ -190,9 +182,10 @@ The topGoal must have a unique ID like "ai-top", the alternatives should have ID
     console.log('Vite development server mounted as Express middleware.');
   } else {
     // Robust detection of dist folder across different execution directories
+    const distDir = path.resolve(process.cwd(), 'dist');
     const candidatePaths = [
       distDir,
-      path.resolve(process.cwd(), 'dist'),
+      path.resolve(import.meta.dirname || process.cwd(), 'dist'),
       process.cwd()
     ];
     const distPath = candidatePaths.find(p => fs.existsSync(path.join(p, 'index.html'))) || distDir;
@@ -203,49 +196,65 @@ The topGoal must have a unique ID like "ai-top", the alternatives should have ID
       if (fs.existsSync(indexPath)) {
         res.sendFile(indexPath);
       } else {
-        res.status(500).send('Application build artifact not found. Please build the application.');
+        res.status(200).send('<!DOCTYPE html><html><head><title>Habits for a Better World</title></head><body><h1>Habits for a Better World</h1><p>Building application assets, please refresh shortly...</p></body></html>');
       }
     });
     console.log('Serving production static distribution from:', distPath);
   }
 
-  // Bind to primary port required by Cloud Run or AI Studio sandbox
-  const server = app.listen(primaryPort, '0.0.0.0', () => {
-    console.log(`Habits for a Better World application running on http://0.0.0.0:${primaryPort}`);
-  });
+  // Start server listener(s):
+  // Inside the AI Studio container, NGINX listens on NGINX_PORT (8080) and proxies requests to DEFAULT_APP_PORT (3000).
+  // In standalone Cloud Run container runtime, Cloud Run sends traffic directly to PORT (defaults to 8080).
+  // We attempt to bind both 3000 and PORT gracefully, handling EADDRINUSE so there are zero crashes or port conflicts.
+  const appPort = parseInt(process.env.DEFAULT_APP_PORT || '3000', 10);
+  const cloudRunPort = process.env.PORT ? parseInt(process.env.PORT, 10) : 8080;
 
-  // In standalone Cloud Run deployment, if primaryPort is not 3000, attempt secondary listener on 3000
-  if (!isDevContainer && primaryPort !== 3000) {
-    try {
-      const auxiliaryServer = app.listen(3000, '0.0.0.0', () => {
-        console.log('Application also listening on auxiliary port 3000');
-      });
-      auxiliaryServer.on('error', (err: any) => {
-        if (err.code !== 'EADDRINUSE') {
-          console.warn('Auxiliary port 3000 notice:', err.message);
+  function bindPort(port: number, label: string): Promise<http.Server | null> {
+    return new Promise((resolve) => {
+      const s = http.createServer(app);
+      s.on('error', (err: any) => {
+        if (err.code === 'EADDRINUSE') {
+          console.log(`Port ${port} (${label}) is already in use (e.g. by reverse proxy), skipping.`);
+        } else {
+          console.warn(`Could not bind port ${port} (${label}):`, err.message);
         }
+        resolve(null);
       });
-    } catch {
-      // Ignored
-    }
+      s.listen(port, '0.0.0.0', () => {
+        console.log(`Habits for a Better World server listening on http://0.0.0.0:${port} (${label})`);
+        resolve(s);
+      });
+    });
+  }
+
+  const activeServers: http.Server[] = [];
+
+  // Bind appPort (3000)
+  const serverApp = await bindPort(appPort, 'app-port');
+  if (serverApp) activeServers.push(serverApp);
+
+  // Bind cloudRunPort (8080) if different from appPort
+  if (cloudRunPort !== appPort) {
+    const serverIngress = await bindPort(cloudRunPort, 'ingress-port');
+    if (serverIngress) activeServers.push(serverIngress);
+  }
+
+  if (activeServers.length === 0) {
+    console.error('Fatal: Failed to bind any port.');
+    process.exit(1);
   }
 
   // Graceful shutdown on Cloud Run container termination
-  process.on('SIGTERM', () => {
-    console.log('SIGTERM signal received: closing HTTP server');
-    server.close(() => {
-      console.log('HTTP server closed');
-      process.exit(0);
-    });
-  });
+  const handleShutdown = (signal: string) => {
+    console.log(`${signal} signal received: closing HTTP server(s)`);
+    for (const s of activeServers) {
+      s.close();
+    }
+    process.exit(0);
+  };
 
-  process.on('SIGINT', () => {
-    console.log('SIGINT signal received: closing HTTP server');
-    server.close(() => {
-      console.log('HTTP server closed');
-      process.exit(0);
-    });
-  });
+  process.on('SIGTERM', () => handleShutdown('SIGTERM'));
+  process.on('SIGINT', () => handleShutdown('SIGINT'));
 }
 
 startServer().catch((err) => {
